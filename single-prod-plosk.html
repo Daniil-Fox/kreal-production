@@ -92,7 +92,6 @@
       crossorigin
     />
     <link rel="stylesheet" href="css/vendor.css" />
-    <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/general.css" />
     <link rel="stylesheet" href="css/single-prod.css" />
     <script defer src="js/main.js"></script>
@@ -207,7 +206,7 @@
                           веществ, соединений азота и фосфора в биологических
                           очистных сооружениях Принцип работы строится на
                           свойстве микро- организмов, которое позволяет им
-                          перерабатывать органические соединения в стоках и
+                          перерабатывать органические включения в стоках и
                           разлагать их до провсотдыах составляющих, таких как:
                           <ul>
                             <li>углекислый газ</li>
@@ -271,21 +270,11 @@
                             примесей сточной воды к поверхности загрузки
                           </p>
                         </div>
-
                         <div class="sp-block__mob sp-block-chars__mob">
                           <div class="sp-block__down">
                             <img src="./img/arrow-down.webp" alt="" />
                           </div>
                         </div>
-                      </div>
-                      <div class="spb-tblock__text__extra sp-block__extra">
-                        <p>Хотите получить техническое решение?</p>
-                        <button class="btn-reset sp-block__btn btn">
-                          Получить файл
-                          <svg class="">
-                            <use xlink:href="img/sprite.svg#arr-right"></use>
-                          </svg>
-                        </button>
                       </div>
                     </div>
 
@@ -613,13 +602,22 @@
               </section>
             </div>
             <div class="site-screen">
-              <section class="sp-block-rel sp-block-rel--plosk">
+              <section class="sp-block-rel geography_filter">
                 <div class="container">
-                  <div class="sp-block-rel__container">
-                    <h2 class="title2 sp-block-rel__title centered">
-                      Наша продукция <span>реализована:</span>
+                  <div class="title_listener">
+                    <h2 class="title2 centered">
+                      Наша продукция <span>реализована</span>
                     </h2>
-                    <div class="sp-block-rel__map"></div>
+                  </div>
+                  <div class="extra_map">
+                    <video
+                      id="map_video"
+                      muted
+                      class="grn-standart"
+                      src="./KrealMap.mp4"
+                    ></video>
+                    <div class="background"></div>
+                    <div class="pkuis"></div>
                   </div>
                 </div>
               </section>
@@ -636,6 +634,24 @@
           </aside>
         </div>
       </main>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+      <script>
+        var a = false;
+        $(".geography_filter").on("mouseover", () => {
+          if (!a) {
+            $("#map_video")[0].play();
+            a = !a;
+          }
+        });
+        $("#map_video").on("ended", () => {
+          $("#map_video").addClass("ended_video");
+          setTimeout(() => {
+            $("#map_video").hide();
+          }, 400);
+        });
+      </script>
+
       <footer class="footer footer--white">
         <div class="footer__top">
           <div class="footer__container">

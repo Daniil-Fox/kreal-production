@@ -243,8 +243,8 @@
 
 .orbit {
   margin-left: auto;
-  width: 58rem;
-  aspect-ratio: 1 / 1;
+  width: 62rem;
+  aspect-ratio: 1/1;
   border: 1px solid #307fe2;
   border-radius: 100%;
   position: relative;
@@ -266,19 +266,19 @@
   background-color: #dcecff;
 }
 .orbit .dot:nth-of-type(1) {
-  left: 20rem;
+  left: 22rem;
   bottom: 0.1rem;
 }
 .orbit .dot:nth-of-type(2) {
-  left: 26.4rem;
+  left: 28.4rem;
   bottom: -1rem;
 }
 .orbit .dot:nth-of-type(3) {
-  left: 32.1rem;
+  left: 34.1rem;
   bottom: -0.7rem;
 }
 .orbit .dot:nth-of-type(4) {
-  left: 37.8rem;
+  left: 39.8rem;
   bottom: 0.7rem;
 }
 .orbit__counter {
@@ -520,7 +520,7 @@
   opacity: 1;
 }
 .contacts-ways__left {
-  padding: 10rem 8rem;
+  padding: 12rem 8rem;
   padding-bottom: 9.4rem;
   -ms-flex-negative: 0;
   flex-shrink: 0;
@@ -541,7 +541,7 @@
   -webkit-box-flex: 1;
   -ms-flex-positive: 1;
   flex-grow: 1;
-  padding: 10rem 4.5rem;
+  padding: 12rem 4.5rem;
 }
 .contacts-ways__wrapper {
   display: -webkit-box;

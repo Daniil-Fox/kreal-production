@@ -94,7 +94,7 @@
     <link rel="stylesheet" href="css/vendor.css" />
     <link rel="stylesheet" href="css/general.css" />
     <link rel="stylesheet" href="css/testi.css" />
-    <script defer src="js/mainfox.js"></script>
+    <script defer src="js/main.js"></script>
   </head>
 
   <body class="page__body">
@@ -178,7 +178,7 @@
               </section>
             </div>
             <div class="site-screen hide-screen">
-              <div class="testi-cont">
+              <section class="testi-cont testi-cont--bg">
                 <div class="testi-cont__container container">
                   <div class="testi-cont__left hide-side vertical-wrapper">
                     <div class="testi-cont__wrapper vertical-container">
@@ -236,13 +236,22 @@
                       </div>
                     </div>
                   </div>
+                  <div class="testi-cont__right">
+                    <div class="testi-cont__arr">
+                      <img src="./img/testi/arr.webp" alt="" />
+                    </div>
+                    <div class="testi-cont__tab active">
+                      Рекомендательные<br />письма
+                    </div>
+                    <div class="testi-cont__tab">Отзывы</div>
+                  </div>
                 </div>
-              </div>
+              </section>
             </div>
             <div
               class="site-screen site-screen-grad hide-screen site-screen--testi"
             >
-              <div class="testi-cont testi-cont-grad">
+              <section class="testi-cont testi-cont-grad">
                 <div class="testi-cont__container container">
                   <div class="testi-cont__left hide-side vertical-wrapper">
                     <div class="testi-cont__wrapper vertical-container">
@@ -403,18 +412,10 @@
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
             </div>
           </div>
-          <div class="testi-cont__right">
-            <div class="testi-cont__arr">
-              <img src="./img/testi/arr.webp" alt="" />
-            </div>
-            <div class="testi-cont__tab active">
-              Рекомендательные<br />письма
-            </div>
-            <div class="testi-cont__tab">Отзывы</div>
-          </div>
+
           <aside class="sidebar">
             <div class="sidebar__container">
               <span class="sidebar__text">Адрес</span>
@@ -670,7 +671,41 @@
           </div>
         </section>
       </main>
-      <footer class="footer footer--blue">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+      <section class="geography_filter">
+        <div class="container">
+          <div class="title_listener">
+            <h2>География <span>объектов</span></h2>
+          </div>
+          <div class="extra_map">
+            <video
+              id="map_video"
+              muted
+              class="grn-standart"
+              src="./KrealMap.mp4"
+            ></video>
+            <div class="background"></div>
+            <div class="pkuis"></div>
+          </div>
+        </div>
+      </section>
+      <script>
+        var a = false;
+        $(".geography_filter").on("mouseover", () => {
+          if (!a) {
+            $("#map_video")[0].play();
+            a = !a;
+          }
+        });
+        $("#map_video").on("ended", () => {
+          $("#map_video").addClass("ended_video");
+          setTimeout(() => {
+            $("#map_video").hide();
+          }, 400);
+        });
+      </script>
+
+      <footer class="footer footer--white">
         <div class="footer__top">
           <div class="footer__container">
             <div class="footer__left">

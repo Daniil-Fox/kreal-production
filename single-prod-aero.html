@@ -92,7 +92,8 @@
       crossorigin
     />
     <link rel="stylesheet" href="css/vendor.css" />
-    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/general.css" />
+    <link rel="stylesheet" href="css/single-prod.css" />
     <script defer src="js/main.js"></script>
   </head>
 
@@ -112,7 +113,6 @@
               <nav class="header__nav nav">
                 <ul>
                   <li class="active">Трубчатые аэраторы</li>
-                  <li>Конструктивные и объемно-планировочные решения</li>
                   <li>Общие технические характеристики</li>
                   <li>Общие этапы изготовления и ввода в эксплуатацию</li>
                   <li>Преимущества нашего оборудования</li>
@@ -241,7 +241,7 @@
                     class="sp-block-solv__container sp-block-solv__container--flex"
                   >
                     <div class="sp-block-solv__content sp-block-solv__left">
-                      <h2 class="title2 sp-block-solv__title">
+                      <h2 class="title2 sp-block-solv__title centered">
                         Общие технические <span>характеристики</span>
                       </h2>
                       <div class="sp-block-solv__content text text--thin">
@@ -601,13 +601,22 @@
               </section>
             </div>
             <div class="site-screen">
-              <section class="sp-block-rel">
+              <section class="sp-block-rel geography_filter">
                 <div class="container">
-                  <div class="sp-block-rel__container">
-                    <h2 class="title2 sp-block-rel__title centered">
-                      Наша продукция <span>реализована:</span>
+                  <div class="title_listener">
+                    <h2 class="title2 centered">
+                      Наша продукция <span>реализована</span>
                     </h2>
-                    <div class="sp-block-rel__map"></div>
+                  </div>
+                  <div class="extra_map">
+                    <video
+                      id="map_video"
+                      muted
+                      class="grn-standart"
+                      src="./KrealMap.mp4"
+                    ></video>
+                    <div class="background"></div>
+                    <div class="pkuis"></div>
                   </div>
                 </div>
               </section>
@@ -624,6 +633,24 @@
           </aside>
         </div>
       </main>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+      <script>
+        var a = false;
+        $(".geography_filter").on("mouseover", () => {
+          if (!a) {
+            $("#map_video")[0].play();
+            a = !a;
+          }
+        });
+        $("#map_video").on("ended", () => {
+          $("#map_video").addClass("ended_video");
+          setTimeout(() => {
+            $("#map_video").hide();
+          }, 400);
+        });
+      </script>
+
       <footer class="footer footer--white">
         <div class="footer__top">
           <div class="footer__container">

@@ -101,6 +101,16 @@
     <div class="site-container">
       <main class="main">
         <div class="site-slider">
+          <div class="h-nav h-nav--nolist header">
+            <span></span>
+            <div class="header__container">
+              <a href="./" class="header__logo">
+                <svg class="">
+                  <use xlink:href="img/sprite.svg#logo"></use>
+                </svg>
+              </a>
+            </div>
+          </div>
           <div class="site-wrapper">
             <div
               class="site-screen site-screen-start site-screen-light site-screen-rm"
@@ -140,26 +150,22 @@
 
             <div class="site-screen">
               <section class="news-section">
-                <div class="h-nav h-nav--nolist header">
-                  <span></span>
-                  <div class="header__container">
-                    <a href="./" class="header__logo">
-                      <svg class="">
-                        <use xlink:href="img/sprite.svg#logo"></use>
-                      </svg>
-                    </a>
-                  </div>
-                </div>
                 <div class="news-section__container">
+                  <h2
+                    class="title2 title2--mob centered blog-hero__title animate-title"
+                  >
+                    <span>Новости</span>
+                  </h2>
                   <h2 class="title2 news-section__title">
                     Следите за новостями и событиями компании,
                     <span>выпуском новых продуктов и тенденциями отрасли.</span>
                   </h2>
 
-                  <div class="news-section__items">
+                  <div class="news-section__items rellax-container">
                     <a
                       href="./news-single.html"
-                      class="news-section__item news-item"
+                      class="news-section__item news-item rellax"
+                      data-rellax-speed="2"
                     >
                       <div class="news-item__img">
                         <img src="./img/news-item.webp" alt="" />
@@ -176,7 +182,8 @@
                     </a>
                     <a
                       href="./news-single.html"
-                      class="news-section__item news-item"
+                      class="news-section__item news-item rellax"
+                      data-rellax-speed="2"
                     >
                       <div class="news-item__img">
                         <img src="./img/news-item.webp" alt="" />
@@ -193,7 +200,8 @@
                     </a>
                     <a
                       href="./news-single.html"
-                      class="news-section__item news-item"
+                      class="news-section__item news-item rellax"
+                      data-rellax-speed="2"
                     >
                       <div class="news-item__img">
                         <img src="./img/news-item.webp" alt="" />
@@ -210,7 +218,8 @@
                     </a>
                     <a
                       href="./news-single.html"
-                      class="news-section__item news-item"
+                      class="news-section__item news-item rellax"
+                      data-rellax-speed="2"
                     >
                       <div class="news-item__img">
                         <img src="./img/news-item.webp" alt="" />
@@ -227,7 +236,8 @@
                     </a>
                     <a
                       href="./news-single.html"
-                      class="news-section__item news-item"
+                      class="news-section__item news-item rellax"
+                      data-rellax-speed="2"
                     >
                       <div class="news-item__img">
                         <img src="./img/news-item.webp" alt="" />
@@ -244,7 +254,8 @@
                     </a>
                     <a
                       href="./news-single.html"
-                      class="news-section__item news-item"
+                      class="news-section__item news-item rellax"
+                      data-rellax-speed="2"
                     >
                       <div class="news-item__img">
                         <img src="./img/news-item.webp" alt="" />
@@ -359,6 +370,40 @@
           </aside>
         </div>
       </main>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+      <section class="geography_filter">
+        <div class="container">
+          <div class="title_listener">
+            <h2>География <span>объектов</span></h2>
+          </div>
+          <div class="extra_map">
+            <video
+              id="map_video"
+              muted
+              class="grn-standart"
+              src="./KrealMap.mp4"
+            ></video>
+            <div class="background"></div>
+            <div class="pkuis"></div>
+          </div>
+        </div>
+      </section>
+      <script>
+        var a = false;
+        $(".geography_filter").on("mouseover", () => {
+          if (!a) {
+            $("#map_video")[0].play();
+            a = !a;
+          }
+        });
+        $("#map_video").on("ended", () => {
+          $("#map_video").addClass("ended_video");
+          setTimeout(() => {
+            $("#map_video").hide();
+          }, 400);
+        });
+      </script>
+
       <footer class="footer footer--blue">
         <div class="footer__top">
           <div class="footer__container">

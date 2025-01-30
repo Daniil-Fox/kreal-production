@@ -293,7 +293,7 @@
               </section>
             </div>
             <div class="site-screen">
-              <section class="sp-block-chars sp-block-chars--mod">
+              <section class="sp-block-chars sp-block-chars--stat">
                 <div class="container">
                   <div class="sp-block-chars__container">
                     <div class="sp-block-chars__left">
@@ -325,11 +325,6 @@
                               <li>Условий эксплуатации</li>
                             </ul>
                           </div>
-                        </div>
-                        <div class="sp-block-chars__heading">
-                          <p class="desc sp-block-chars__capture">
-                            Стандартные размеры и массы модулей
-                          </p>
                         </div>
                       </div>
 
@@ -371,20 +366,6 @@
                               >Размеры (LxBxH): 9.125 х 2.438 х 2.890 мм</span
                             >
                           </div>
-                        </div>
-                      </div>
-                      <div class="sp-block__mob">
-                        <div class="sp-block-hero__bottom">
-                          <div class="sp-block-hero__link">
-                            <a href="#">Смотреть</a>
-                            комплект документации
-                          </div>
-                          <a href="#" class="link sp-block-hero__cta"
-                            >Скачать файлы
-                            <svg class="">
-                              <use xlink:href="img/sprite.svg#arr-right"></use>
-                            </svg>
-                          </a>
                         </div>
                       </div>
                     </div>
@@ -713,13 +694,22 @@
               </section>
             </div>
             <div class="site-screen">
-              <section class="sp-block-rel sp-block-rel--mod">
+              <section class="sp-block-rel geography_filter">
                 <div class="container">
-                  <div class="sp-block-rel__container">
-                    <h2 class="title2 sp-block-rel__title centered">
-                      Наша продукция <span>реализована:</span>
+                  <div class="title_listener">
+                    <h2 class="title2 centered">
+                      Наша продукция <span>реализована</span>
                     </h2>
-                    <div class="sp-block-rel__map"></div>
+                  </div>
+                  <div class="extra_map">
+                    <video
+                      id="map_video"
+                      muted
+                      class="grn-standart"
+                      src="./KrealMap.mp4"
+                    ></video>
+                    <div class="background"></div>
+                    <div class="pkuis"></div>
                   </div>
                 </div>
               </section>
@@ -736,6 +726,24 @@
           </aside>
         </div>
       </main>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+      <script>
+        var a = false;
+        $(".geography_filter").on("mouseover", () => {
+          if (!a) {
+            $("#map_video")[0].play();
+            a = !a;
+          }
+        });
+        $("#map_video").on("ended", () => {
+          $("#map_video").addClass("ended_video");
+          setTimeout(() => {
+            $("#map_video").hide();
+          }, 400);
+        });
+      </script>
+
       <footer class="footer footer--white">
         <div class="footer__top">
           <div class="footer__container">

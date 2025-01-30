@@ -1,6 +1,5 @@
 /******/ (() => {
   // webpackBootstrap
-  /******/ "use strict";
   /******/ var __webpack_modules__ = {
     /***/ "./node_modules/gsap/CSSPlugin.js":
       /*!****************************************!*\
@@ -11,6 +10,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ CSSPlugin: () => /* binding */ CSSPlugin,
@@ -2400,6 +2400,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ Observer: () => /* binding */ Observer,
@@ -3336,6 +3337,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ ScrollTrigger: () => /* binding */ ScrollTrigger,
@@ -7293,6 +7295,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ Animation: () => /* binding */ Animation,
@@ -13435,6 +13438,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ Back: () =>
@@ -13505,6 +13509,696 @@
         /***/
       },
 
+    /***/ "./node_modules/rellax/rellax.js":
+      /*!***************************************!*\
+    !*** ./node_modules/rellax/rellax.js ***!
+    \***************************************/
+      /***/ (module, exports, __webpack_require__) => {
+        var __WEBPACK_AMD_DEFINE_FACTORY__,
+          __WEBPACK_AMD_DEFINE_ARRAY__,
+          __WEBPACK_AMD_DEFINE_RESULT__;
+        // ------------------------------------------
+        // Rellax.js
+        // Buttery smooth parallax library
+        // Copyright (c) 2016 Moe Amaya (@moeamaya)
+        // MIT license
+        //
+        // Thanks to Paraxify.js and Jaime Cabllero
+        // for parallax concepts
+        // ------------------------------------------
+
+        (function (root, factory) {
+          if (true) {
+            // AMD. Register as an anonymous module.
+            !((__WEBPACK_AMD_DEFINE_ARRAY__ = []),
+            (__WEBPACK_AMD_DEFINE_FACTORY__ = factory),
+            (__WEBPACK_AMD_DEFINE_RESULT__ =
+              typeof __WEBPACK_AMD_DEFINE_FACTORY__ === "function"
+                ? __WEBPACK_AMD_DEFINE_FACTORY__.apply(
+                    exports,
+                    __WEBPACK_AMD_DEFINE_ARRAY__
+                  )
+                : __WEBPACK_AMD_DEFINE_FACTORY__),
+            __WEBPACK_AMD_DEFINE_RESULT__ !== undefined &&
+              (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+          } else {
+          }
+        })(
+          typeof window !== "undefined" ? window : __webpack_require__.g,
+          function () {
+            var Rellax = function (el, options) {
+              "use strict";
+
+              var self = Object.create(Rellax.prototype);
+
+              var posY = 0;
+              var screenY = 0;
+              var posX = 0;
+              var screenX = 0;
+              var blocks = [];
+              var pause = true;
+
+              // check what requestAnimationFrame to use, and if
+              // it's not supported, use the onscroll event
+              var loop =
+                window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                window.msRequestAnimationFrame ||
+                window.oRequestAnimationFrame ||
+                function (callback) {
+                  return setTimeout(callback, 1000 / 60);
+                };
+
+              // store the id for later use
+              var loopId = null;
+
+              // Test via a getter in the options object to see if the passive property is accessed
+              var supportsPassive = false;
+              try {
+                var opts = Object.defineProperty({}, "passive", {
+                  get: function () {
+                    supportsPassive = true;
+                  },
+                });
+                window.addEventListener("testPassive", null, opts);
+                window.removeEventListener("testPassive", null, opts);
+              } catch (e) {}
+
+              // check what cancelAnimation method to use
+              var clearLoop =
+                window.cancelAnimationFrame ||
+                window.mozCancelAnimationFrame ||
+                clearTimeout;
+
+              // check which transform property to use
+              var transformProp =
+                window.transformProp ||
+                (function () {
+                  var testEl = document.createElement("div");
+                  if (testEl.style.transform === null) {
+                    var vendors = ["Webkit", "Moz", "ms"];
+                    for (var vendor in vendors) {
+                      if (
+                        testEl.style[vendors[vendor] + "Transform"] !==
+                        undefined
+                      ) {
+                        return vendors[vendor] + "Transform";
+                      }
+                    }
+                  }
+                  return "transform";
+                })();
+
+              // Default Settings
+              self.options = {
+                speed: -2,
+                verticalSpeed: null,
+                horizontalSpeed: null,
+                breakpoints: [576, 768, 1201],
+                center: false,
+                wrapper: null,
+                relativeToWrapper: false,
+                round: true,
+                vertical: true,
+                horizontal: false,
+                verticalScrollAxis: "y",
+                horizontalScrollAxis: "x",
+                callback: function () {},
+              };
+
+              // User defined options (might have more in the future)
+              if (options) {
+                Object.keys(options).forEach(function (key) {
+                  self.options[key] = options[key];
+                });
+              }
+
+              function validateCustomBreakpoints() {
+                if (
+                  self.options.breakpoints.length === 3 &&
+                  Array.isArray(self.options.breakpoints)
+                ) {
+                  var isAscending = true;
+                  var isNumerical = true;
+                  var lastVal;
+                  self.options.breakpoints.forEach(function (i) {
+                    if (typeof i !== "number") isNumerical = false;
+                    if (lastVal !== null) {
+                      if (i < lastVal) isAscending = false;
+                    }
+                    lastVal = i;
+                  });
+                  if (isAscending && isNumerical) return;
+                }
+                // revert defaults if set incorrectly
+                self.options.breakpoints = [576, 768, 1201];
+                console.warn(
+                  "Rellax: You must pass an array of 3 numbers in ascending order to the breakpoints option. Defaults reverted"
+                );
+              }
+
+              if (options && options.breakpoints) {
+                validateCustomBreakpoints();
+              }
+
+              // By default, rellax class
+              if (!el) {
+                el = ".rellax";
+              }
+
+              // check if el is a className or a node
+              var elements =
+                typeof el === "string" ? document.querySelectorAll(el) : [el];
+
+              // Now query selector
+              if (elements.length > 0) {
+                self.elems = elements;
+              }
+
+              // The elements don't exist
+              else {
+                console.warn(
+                  "Rellax: The elements you're trying to select don't exist."
+                );
+                return;
+              }
+
+              // Has a wrapper and it exists
+              if (self.options.wrapper) {
+                if (!self.options.wrapper.nodeType) {
+                  var wrapper = document.querySelector(self.options.wrapper);
+
+                  if (wrapper) {
+                    self.options.wrapper = wrapper;
+                  } else {
+                    console.warn(
+                      "Rellax: The wrapper you're trying to use doesn't exist."
+                    );
+                    return;
+                  }
+                }
+              }
+
+              // set a placeholder for the current breakpoint
+              var currentBreakpoint;
+
+              // helper to determine current breakpoint
+              var getCurrentBreakpoint = function (w) {
+                var bp = self.options.breakpoints;
+                if (w < bp[0]) return "xs";
+                if (w >= bp[0] && w < bp[1]) return "sm";
+                if (w >= bp[1] && w < bp[2]) return "md";
+                return "lg";
+              };
+
+              // Get and cache initial position of all elements
+              var cacheBlocks = function () {
+                for (var i = 0; i < self.elems.length; i++) {
+                  var block = createBlock(self.elems[i]);
+                  blocks.push(block);
+                }
+              };
+
+              // Let's kick this script off
+              // Build array for cached element values
+              var init = function () {
+                for (var i = 0; i < blocks.length; i++) {
+                  self.elems[i].style.cssText = blocks[i].style;
+                }
+
+                blocks = [];
+
+                screenY = window.innerHeight;
+                screenX = window.innerWidth;
+                currentBreakpoint = getCurrentBreakpoint(screenX);
+
+                setPosition();
+
+                cacheBlocks();
+
+                animate();
+
+                // If paused, unpause and set listener for window resizing events
+                if (pause) {
+                  window.addEventListener("resize", init);
+                  pause = false;
+                  // Start the loop
+                  update();
+                }
+              };
+
+              // We want to cache the parallax blocks'
+              // values: base, top, height, speed
+              // el: is dom object, return: el cache values
+              var createBlock = function (el) {
+                var dataPercentage = el.getAttribute("data-rellax-percentage");
+                var dataSpeed = el.getAttribute("data-rellax-speed");
+                var dataXsSpeed = el.getAttribute("data-rellax-xs-speed");
+                var dataMobileSpeed = el.getAttribute(
+                  "data-rellax-mobile-speed"
+                );
+                var dataTabletSpeed = el.getAttribute(
+                  "data-rellax-tablet-speed"
+                );
+                var dataDesktopSpeed = el.getAttribute(
+                  "data-rellax-desktop-speed"
+                );
+                var dataVerticalSpeed = el.getAttribute(
+                  "data-rellax-vertical-speed"
+                );
+                var dataHorizontalSpeed = el.getAttribute(
+                  "data-rellax-horizontal-speed"
+                );
+                var dataVericalScrollAxis = el.getAttribute(
+                  "data-rellax-vertical-scroll-axis"
+                );
+                var dataHorizontalScrollAxis = el.getAttribute(
+                  "data-rellax-horizontal-scroll-axis"
+                );
+                var dataZindex = el.getAttribute("data-rellax-zindex") || 0;
+                var dataMin = el.getAttribute("data-rellax-min");
+                var dataMax = el.getAttribute("data-rellax-max");
+                var dataMinX = el.getAttribute("data-rellax-min-x");
+                var dataMaxX = el.getAttribute("data-rellax-max-x");
+                var dataMinY = el.getAttribute("data-rellax-min-y");
+                var dataMaxY = el.getAttribute("data-rellax-max-y");
+                var mapBreakpoints;
+                var breakpoints = true;
+
+                if (
+                  !dataXsSpeed &&
+                  !dataMobileSpeed &&
+                  !dataTabletSpeed &&
+                  !dataDesktopSpeed
+                ) {
+                  breakpoints = false;
+                } else {
+                  mapBreakpoints = {
+                    xs: dataXsSpeed,
+                    sm: dataMobileSpeed,
+                    md: dataTabletSpeed,
+                    lg: dataDesktopSpeed,
+                  };
+                }
+
+                // initializing at scrollY = 0 (top of browser), scrollX = 0 (left of browser)
+                // ensures elements are positioned based on HTML layout.
+                //
+                // If the element has the percentage attribute, the posY and posX needs to be
+                // the current scroll position's value, so that the elements are still positioned based on HTML layout
+                var wrapperPosY = self.options.wrapper
+                  ? self.options.wrapper.scrollTop
+                  : window.pageYOffset ||
+                    document.documentElement.scrollTop ||
+                    document.body.scrollTop;
+                // If the option relativeToWrapper is true, use the wrappers offset to top, subtracted from the current page scroll.
+                if (self.options.relativeToWrapper) {
+                  var scrollPosY =
+                    window.pageYOffset ||
+                    document.documentElement.scrollTop ||
+                    document.body.scrollTop;
+                  wrapperPosY = scrollPosY - self.options.wrapper.offsetTop;
+                }
+                var posY = self.options.vertical
+                  ? dataPercentage || self.options.center
+                    ? wrapperPosY
+                    : 0
+                  : 0;
+                var posX = self.options.horizontal
+                  ? dataPercentage || self.options.center
+                    ? self.options.wrapper
+                      ? self.options.wrapper.scrollLeft
+                      : window.pageXOffset ||
+                        document.documentElement.scrollLeft ||
+                        document.body.scrollLeft
+                    : 0
+                  : 0;
+
+                var blockTop = posY + el.getBoundingClientRect().top;
+                var blockHeight =
+                  el.clientHeight || el.offsetHeight || el.scrollHeight;
+
+                var blockLeft = posX + el.getBoundingClientRect().left;
+                var blockWidth =
+                  el.clientWidth || el.offsetWidth || el.scrollWidth;
+
+                // apparently parallax equation everyone uses
+                var percentageY = dataPercentage
+                  ? dataPercentage
+                  : (posY - blockTop + screenY) / (blockHeight + screenY);
+                var percentageX = dataPercentage
+                  ? dataPercentage
+                  : (posX - blockLeft + screenX) / (blockWidth + screenX);
+                if (self.options.center) {
+                  percentageX = 0.5;
+                  percentageY = 0.5;
+                }
+
+                // Optional individual block speed as data attr, otherwise global speed
+                var speed =
+                  breakpoints && mapBreakpoints[currentBreakpoint] !== null
+                    ? Number(mapBreakpoints[currentBreakpoint])
+                    : dataSpeed
+                    ? dataSpeed
+                    : self.options.speed;
+                var verticalSpeed = dataVerticalSpeed
+                  ? dataVerticalSpeed
+                  : self.options.verticalSpeed;
+                var horizontalSpeed = dataHorizontalSpeed
+                  ? dataHorizontalSpeed
+                  : self.options.horizontalSpeed;
+
+                // Optional individual block movement axis direction as data attr, otherwise gobal movement direction
+                var verticalScrollAxis = dataVericalScrollAxis
+                  ? dataVericalScrollAxis
+                  : self.options.verticalScrollAxis;
+                var horizontalScrollAxis = dataHorizontalScrollAxis
+                  ? dataHorizontalScrollAxis
+                  : self.options.horizontalScrollAxis;
+
+                var bases = updatePosition(
+                  percentageX,
+                  percentageY,
+                  speed,
+                  verticalSpeed,
+                  horizontalSpeed
+                );
+
+                // ~~Store non-translate3d transforms~~
+                // Store inline styles and extract transforms
+                var style = el.style.cssText;
+                var transform = "";
+
+                // Check if there's an inline styled transform
+                var searchResult = /transform\s*:/i.exec(style);
+                if (searchResult) {
+                  // Get the index of the transform
+                  var index = searchResult.index;
+
+                  // Trim the style to the transform point and get the following semi-colon index
+                  var trimmedStyle = style.slice(index);
+                  var delimiter = trimmedStyle.indexOf(";");
+
+                  // Remove "transform" string and save the attribute
+                  if (delimiter) {
+                    transform =
+                      " " +
+                      trimmedStyle.slice(11, delimiter).replace(/\s/g, "");
+                  } else {
+                    transform = " " + trimmedStyle.slice(11).replace(/\s/g, "");
+                  }
+                }
+
+                return {
+                  baseX: bases.x,
+                  baseY: bases.y,
+                  top: blockTop,
+                  left: blockLeft,
+                  height: blockHeight,
+                  width: blockWidth,
+                  speed: speed,
+                  verticalSpeed: verticalSpeed,
+                  horizontalSpeed: horizontalSpeed,
+                  verticalScrollAxis: verticalScrollAxis,
+                  horizontalScrollAxis: horizontalScrollAxis,
+                  style: style,
+                  transform: transform,
+                  zindex: dataZindex,
+                  min: dataMin,
+                  max: dataMax,
+                  minX: dataMinX,
+                  maxX: dataMaxX,
+                  minY: dataMinY,
+                  maxY: dataMaxY,
+                };
+              };
+
+              // set scroll position (posY, posX)
+              // side effect method is not ideal, but okay for now
+              // returns true if the scroll changed, false if nothing happened
+              var setPosition = function () {
+                var oldY = posY;
+                var oldX = posX;
+
+                posY = self.options.wrapper
+                  ? self.options.wrapper.scrollTop
+                  : (
+                      document.documentElement ||
+                      document.body.parentNode ||
+                      document.body
+                    ).scrollTop || window.pageYOffset;
+                posX = self.options.wrapper
+                  ? self.options.wrapper.scrollLeft
+                  : (
+                      document.documentElement ||
+                      document.body.parentNode ||
+                      document.body
+                    ).scrollLeft || window.pageXOffset;
+                // If option relativeToWrapper is true, use relative wrapper value instead.
+                if (self.options.relativeToWrapper) {
+                  var scrollPosY =
+                    (
+                      document.documentElement ||
+                      document.body.parentNode ||
+                      document.body
+                    ).scrollTop || window.pageYOffset;
+                  posY = scrollPosY - self.options.wrapper.offsetTop;
+                }
+
+                if (oldY != posY && self.options.vertical) {
+                  // scroll changed, return true
+                  return true;
+                }
+
+                if (oldX != posX && self.options.horizontal) {
+                  // scroll changed, return true
+                  return true;
+                }
+
+                // scroll did not change
+                return false;
+              };
+
+              // Ahh a pure function, gets new transform value
+              // based on scrollPosition and speed
+              // Allow for decimal pixel values
+              var updatePosition = function (
+                percentageX,
+                percentageY,
+                speed,
+                verticalSpeed,
+                horizontalSpeed
+              ) {
+                var result = {};
+                var valueX =
+                  (horizontalSpeed ? horizontalSpeed : speed) *
+                  (100 * (1 - percentageX));
+                var valueY =
+                  (verticalSpeed ? verticalSpeed : speed) *
+                  (100 * (1 - percentageY));
+
+                result.x = self.options.round
+                  ? Math.round(valueX)
+                  : Math.round(valueX * 100) / 100;
+                result.y = self.options.round
+                  ? Math.round(valueY)
+                  : Math.round(valueY * 100) / 100;
+
+                return result;
+              };
+
+              // Remove event listeners and loop again
+              var deferredUpdate = function () {
+                window.removeEventListener("resize", deferredUpdate);
+                window.removeEventListener("orientationchange", deferredUpdate);
+                (self.options.wrapper
+                  ? self.options.wrapper
+                  : window
+                ).removeEventListener("scroll", deferredUpdate);
+                (self.options.wrapper
+                  ? self.options.wrapper
+                  : document
+                ).removeEventListener("touchmove", deferredUpdate);
+
+                // loop again
+                loopId = loop(update);
+              };
+
+              // Loop
+              var update = function () {
+                if (setPosition() && pause === false) {
+                  animate();
+
+                  // loop again
+                  loopId = loop(update);
+                } else {
+                  loopId = null;
+
+                  // Don't animate until we get a position updating event
+                  window.addEventListener("resize", deferredUpdate);
+                  window.addEventListener("orientationchange", deferredUpdate);
+                  (self.options.wrapper
+                    ? self.options.wrapper
+                    : window
+                  ).addEventListener(
+                    "scroll",
+                    deferredUpdate,
+                    supportsPassive ? { passive: true } : false
+                  );
+                  (self.options.wrapper
+                    ? self.options.wrapper
+                    : document
+                  ).addEventListener(
+                    "touchmove",
+                    deferredUpdate,
+                    supportsPassive ? { passive: true } : false
+                  );
+                }
+              };
+
+              // Transform3d on parallax element
+              var animate = function () {
+                var positions;
+                for (var i = 0; i < self.elems.length; i++) {
+                  // Determine relevant movement directions
+                  var verticalScrollAxis =
+                    blocks[i].verticalScrollAxis.toLowerCase();
+                  var horizontalScrollAxis =
+                    blocks[i].horizontalScrollAxis.toLowerCase();
+                  var verticalScrollX =
+                    verticalScrollAxis.indexOf("x") != -1 ? posY : 0;
+                  var verticalScrollY =
+                    verticalScrollAxis.indexOf("y") != -1 ? posY : 0;
+                  var horizontalScrollX =
+                    horizontalScrollAxis.indexOf("x") != -1 ? posX : 0;
+                  var horizontalScrollY =
+                    horizontalScrollAxis.indexOf("y") != -1 ? posX : 0;
+
+                  var percentageY =
+                    (verticalScrollY +
+                      horizontalScrollY -
+                      blocks[i].top +
+                      screenY) /
+                    (blocks[i].height + screenY);
+                  var percentageX =
+                    (verticalScrollX +
+                      horizontalScrollX -
+                      blocks[i].left +
+                      screenX) /
+                    (blocks[i].width + screenX);
+
+                  // Subtracting initialize value, so element stays in same spot as HTML
+                  positions = updatePosition(
+                    percentageX,
+                    percentageY,
+                    blocks[i].speed,
+                    blocks[i].verticalSpeed,
+                    blocks[i].horizontalSpeed
+                  );
+                  var positionY = positions.y - blocks[i].baseY;
+                  var positionX = positions.x - blocks[i].baseX;
+
+                  // The next two "if" blocks go like this:
+                  // Check if a limit is defined (first "min", then "max");
+                  // Check if we need to change the Y or the X
+                  // (Currently working only if just one of the axes is enabled)
+                  // Then, check if the new position is inside the allowed limit
+                  // If so, use new position. If not, set position to limit.
+
+                  // Check if a min limit is defined
+                  if (blocks[i].min !== null) {
+                    if (self.options.vertical && !self.options.horizontal) {
+                      positionY =
+                        positionY <= blocks[i].min ? blocks[i].min : positionY;
+                    }
+                    if (self.options.horizontal && !self.options.vertical) {
+                      positionX =
+                        positionX <= blocks[i].min ? blocks[i].min : positionX;
+                    }
+                  }
+
+                  // Check if directional min limits are defined
+                  if (blocks[i].minY != null) {
+                    positionY =
+                      positionY <= blocks[i].minY ? blocks[i].minY : positionY;
+                  }
+                  if (blocks[i].minX != null) {
+                    positionX =
+                      positionX <= blocks[i].minX ? blocks[i].minX : positionX;
+                  }
+
+                  // Check if a max limit is defined
+                  if (blocks[i].max !== null) {
+                    if (self.options.vertical && !self.options.horizontal) {
+                      positionY =
+                        positionY >= blocks[i].max ? blocks[i].max : positionY;
+                    }
+                    if (self.options.horizontal && !self.options.vertical) {
+                      positionX =
+                        positionX >= blocks[i].max ? blocks[i].max : positionX;
+                    }
+                  }
+
+                  // Check if directional max limits are defined
+                  if (blocks[i].maxY != null) {
+                    positionY =
+                      positionY >= blocks[i].maxY ? blocks[i].maxY : positionY;
+                  }
+                  if (blocks[i].maxX != null) {
+                    positionX =
+                      positionX >= blocks[i].maxX ? blocks[i].maxX : positionX;
+                  }
+
+                  var zindex = blocks[i].zindex;
+
+                  // Move that element
+                  // (Set the new translation and append initial inline transforms.)
+                  var translate =
+                    "translate3d(" +
+                    (self.options.horizontal ? positionX : "0") +
+                    "px," +
+                    (self.options.vertical ? positionY : "0") +
+                    "px," +
+                    zindex +
+                    "px) " +
+                    blocks[i].transform;
+                  self.elems[i].style[transformProp] = translate;
+                }
+                self.options.callback(positions);
+              };
+
+              self.destroy = function () {
+                for (var i = 0; i < self.elems.length; i++) {
+                  self.elems[i].style.cssText = blocks[i].style;
+                }
+
+                // Remove resize event listener if not pause, and pause
+                if (!pause) {
+                  window.removeEventListener("resize", init);
+                  pause = true;
+                }
+
+                // Clear the animation loop to prevent possible memory leak
+                clearLoop(loopId);
+                loopId = null;
+              };
+
+              // Init
+              init();
+
+              // Allow to recalculate the initial values whenever we want
+              self.refresh = init;
+
+              return self;
+            };
+            return Rellax;
+          }
+        );
+
+        /***/
+      },
+
     /***/ "./src/js/_components.js":
       /*!*******************************!*\
     !*** ./src/js/_components.js ***!
@@ -13514,14 +14208,15 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony import */ var _components_sliders_js__WEBPACK_IMPORTED_MODULE_0__ =
           __webpack_require__(
             /*! ./components/sliders.js */ "./src/js/components/sliders.js"
           );
-        /* harmony import */ var _components_scroll_js__WEBPACK_IMPORTED_MODULE_1__ =
+        /* harmony import */ var _components_scroll_new_js__WEBPACK_IMPORTED_MODULE_1__ =
           __webpack_require__(
-            /*! ./components/scroll.js */ "./src/js/components/scroll.js"
+            /*! ./components/scroll-new.js */ "./src/js/components/scroll-new.js"
           );
         /* harmony import */ var _components_animations_js__WEBPACK_IMPORTED_MODULE_2__ =
           __webpack_require__(
@@ -13539,9 +14234,10 @@
           __webpack_require__(
             /*! ./components/blog-mob.js */ "./src/js/components/blog-mob.js"
           );
-        // import './components/gsap.js'
-
-        // import './components/owl.js'
+        /* harmony import */ var _components_scale_down_js__WEBPACK_IMPORTED_MODULE_6__ =
+          __webpack_require__(
+            /*! ./components/scale-down.js */ "./src/js/components/scale-down.js"
+          );
 
         /***/
       },
@@ -13555,44 +14251,30 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ animateArrow: () => /* binding */ animateArrow,
           /* harmony export */
         });
-        /* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_1__ =
+        /* harmony import */ var gsap__WEBPACK_IMPORTED_MODULE_0__ =
           __webpack_require__(/*! gsap */ "./node_modules/gsap/index.js");
-        /* harmony import */ var gsap_ScrollTrigger_js__WEBPACK_IMPORTED_MODULE_2__ =
+        /* harmony import */ var gsap_ScrollTrigger_js__WEBPACK_IMPORTED_MODULE_1__ =
           __webpack_require__(
             /*! gsap/ScrollTrigger.js */ "./node_modules/gsap/ScrollTrigger.js"
           );
-        /* harmony import */ var _scroll_js__WEBPACK_IMPORTED_MODULE_0__ =
-          __webpack_require__(
-            /*! ./scroll.js */ "./src/js/components/scroll.js"
-          );
 
-        gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.registerPlugin(
-          gsap_ScrollTrigger_js__WEBPACK_IMPORTED_MODULE_2__.ScrollTrigger
+        gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.registerPlugin(
+          gsap_ScrollTrigger_js__WEBPACK_IMPORTED_MODULE_1__.ScrollTrigger
         );
-        const timeline = gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.timeline({
+        const timeline = gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.timeline({
           onComplete: () => {
-            const rmAnimating = document.querySelector(".site-screen-rm");
-            window.matchMedia("(min-width: 1025px)").matches
-              ? (0, _scroll_js__WEBPACK_IMPORTED_MODULE_0__.goToOtherSlide)(1)
-              : null;
             if (
               document.querySelector(".swiper-slide-active .prod-items__arr")
             ) {
               animateArrow(
                 document.querySelector(".swiper-slide-active .prod-items__arr")
               );
-            }
-            if (rmAnimating) {
-              setTimeout(() => {
-                rmAnimating.remove();
-                (0,
-                _scroll_js__WEBPACK_IMPORTED_MODULE_0__.resetScrollSettings)();
-              }, _scroll_js__WEBPACK_IMPORTED_MODULE_0__.delayAnim + 10);
             }
           },
         });
@@ -13623,13 +14305,13 @@
           },
           "-=0.6"
         );
-        gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(".arr1", {
+        gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(".arr1", {
           y: 800,
         });
-        gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(".arr2", {
+        gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(".arr2", {
           y: 800,
         });
-        gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(".arr3", {
+        gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(".arr3", {
           y: 800,
         });
         function animateArrow(cont) {
@@ -13638,7 +14320,7 @@
           const arr3 = cont?.querySelector(".arr3");
           const img = cont?.querySelector(".anim-img");
           const imgMask = cont?.querySelector(".mask-arr");
-          const tl = gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.timeline({
+          const tl = gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.timeline({
             duration: 1.2,
             onComplete: () => {
               img.style.opacity = 1;
@@ -13670,7 +14352,7 @@
         if (window.matchMedia("(min-width: 1025px)").matches) {
           const mapContainer = document.querySelector(".contacts-main__map");
           const mapBack = document.querySelector(".contacts-main__back");
-          const tl = gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.timeline({
+          const tl = gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.timeline({
             paused: true,
           });
           tl.to(mapContainer, {
@@ -13751,11 +14433,11 @@
             const orbitActiveNext = container.querySelector(
               ".orbit__planet--next"
             );
-            gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(orbitActive, {
+            gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(orbitActive, {
               zIndex: -1,
               opacity: 0,
             });
-            gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(orbitNext, {
+            gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(orbitNext, {
               zIndex: -1,
               opacity: 0,
             });
@@ -13768,7 +14450,7 @@
             const orbitNav = container.querySelectorAll(
               ".contacts-ways__nav li"
             );
-            const tl1 = gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.timeline();
+            const tl1 = gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.timeline();
             function setOrbitCounter() {
               orbitCounter.textContent =
                 currentIndex < 10
@@ -13778,14 +14460,14 @@
             function changeSlideFw(idx) {
               const prev = currentIndex;
               turn++;
-              gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.to(
+              gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.to(
                 container.querySelector(".orbit__wrapper"),
                 {
                   rotateZ: () => (rotation += 180),
                   duration: 1,
                 }
               );
-              gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(
+              gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(
                 container.querySelectorAll(
                   ".orbit__planet--active .orbit__img"
                 ),
@@ -13794,14 +14476,14 @@
                   opacity: 0,
                 }
               );
-              gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(
+              gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(
                 container.querySelectorAll(".orbit__planet--next .orbit__img"),
                 {
                   zIndex: -2,
                   opacity: 0,
                 }
               );
-              gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.to(orbitActivePlanet, {
+              gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.to(orbitActivePlanet, {
                 rotateZ: () => (turn % 2 ? "180" : "0"),
                 scale: () => (turn % 2 ? "0.2" : "1"),
                 onUpdate: () =>
@@ -13809,7 +14491,7 @@
                     ? orbitActivePlanet.classList.add("hideit")
                     : orbitActivePlanet.classList.remove("hideit"),
               });
-              gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.to(orbitActiveNext, {
+              gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.to(orbitActiveNext, {
                 rotateZ: () => (turn % 2 ? "180" : "0"),
                 scale: () => (!(turn % 2) ? "0.2" : "1"),
                 onUpdate: () =>
@@ -13856,14 +14538,14 @@
             function changeSlideBack(idx) {
               const prev = currentIndex;
               turn++;
-              gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.to(
+              gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.to(
                 container.querySelector(".orbit__wrapper"),
                 {
                   rotateZ: () => (rotation -= 180),
                   duration: 1,
                 }
               );
-              gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(
+              gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(
                 container.querySelectorAll(
                   ".orbit__planet--active .orbit__img"
                 ),
@@ -13872,14 +14554,14 @@
                   opacity: 0,
                 }
               );
-              gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(
+              gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(
                 container.querySelectorAll(".orbit__planet--next .orbit__img"),
                 {
                   zIndex: -2,
                   opacity: 0,
                 }
               );
-              gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.to(orbitActivePlanet, {
+              gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.to(orbitActivePlanet, {
                 rotateZ: () => (turn % 2 ? "180" : "0"),
                 scale: () => (turn % 2 ? "0.2" : "1"),
                 onUpdate: () =>
@@ -13887,7 +14569,7 @@
                     ? orbitActivePlanet.classList.add("hideit")
                     : orbitActivePlanet.classList.remove("hideit"),
               });
-              gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.to(orbitActiveNext, {
+              gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.to(orbitActiveNext, {
                 rotateZ: () => (turn % 2 ? "180" : "0"),
                 scale: () => (!(turn % 2) ? "0.2" : "1"),
                 onUpdate: () =>
@@ -13964,14 +14646,14 @@
                 return currentIndex % 2;
               }
             }
-            gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(
+            gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(
               orbitActive[currentIndex],
               {
                 zIndex: 2,
                 opacity: 1,
               }
             );
-            gsap__WEBPACK_IMPORTED_MODULE_1__.gsap.set(
+            gsap__WEBPACK_IMPORTED_MODULE_0__.gsap.set(
               orbitNext[currentIndex + 1],
               {
                 zIndex: 2,
@@ -14020,6 +14702,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         const blogItems = [
           ...document.querySelectorAll(".blog-slider__slider .swiper-slide"),
@@ -14057,6 +14740,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         const tabs = document.querySelectorAll(".contacts-ways__tab");
         if (tabs && tabs.length > 0) {
@@ -14084,338 +14768,455 @@
         /***/
       },
 
-    /***/ "./src/js/components/scroll.js":
-      /*!*************************************!*\
-    !*** ./src/js/components/scroll.js ***!
-    \*************************************/
+    /***/ "./src/js/components/scale-down.js":
+      /*!*****************************************!*\
+    !*** ./src/js/components/scale-down.js ***!
+    \*****************************************/
       /***/ (
         __unused_webpack___webpack_module__,
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
-        /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-          /* harmony export */ delayAnim: () => /* binding */ delayAnim,
-          /* harmony export */ goToOtherSlide: () =>
-            /* binding */ goToOtherSlide,
-          /* harmony export */ resetScrollSettings: () =>
-            /* binding */ resetScrollSettings,
-          /* harmony export */
-        });
+        const slideStart = document.querySelector(".site-screen-start");
+        if (slideStart) {
+          const section = slideStart.querySelector("section");
+          const intersectionObserver = new IntersectionObserver(
+            (entries, observer) => {
+              if (entries[0].isIntersecting) {
+                entries[0].target.classList.add("scale-down");
+              }
+            },
+            {
+              threshold: 0.8,
+            }
+          );
+          intersectionObserver.observe(section);
+        }
+
+        /***/
+      },
+
+    /***/ "./src/js/components/scroll-new.js":
+      /*!*****************************************!*\
+    !*** ./src/js/components/scroll-new.js ***!
+    \*****************************************/
+      /***/ (
+        __unused_webpack___webpack_module__,
+        __webpack_exports__,
+        __webpack_require__
+      ) => {
+        "use strict";
+        __webpack_require__.r(__webpack_exports__);
         /* harmony import */ var _functions_throttle_js__WEBPACK_IMPORTED_MODULE_0__ =
           __webpack_require__(
             /*! ./../functions/throttle.js */ "./src/js/functions/throttle.js"
           );
+        /* harmony import */ var lenis__WEBPACK_IMPORTED_MODULE_1__ =
+          __webpack_require__(
+            /*! lenis */ "./node_modules/lenis/dist/lenis.mjs"
+          );
 
+        // -------------------- Глобальные переменные --------------------
         let delta, direction;
-        const delatSizeUp = 0;
-        const delayAnim = 1300;
-        let windPos = 0;
-        let navPos = 0;
-        let scroll = 0;
-        let anim = false;
-        let pause = false;
-        let checkTopScreen = false;
+        const delayAnim = 700; // Задержка на переключение слайдов
+        let windPos = 0; // Индекс текущего слайда
+        const HOR_SCROLL_STEP = 100; // Шаг прокрутки в hor-scroll
+        let anim = false; // Флаг блокировки анимации
+        let pause = false; // Пауза прокрутки
+        let isPageScrollEnabled = false; // Включение стандартного скролла
+        let footerVisible = false; // Флаг видимости футера
+        const testiTabs = document.querySelectorAll(".testi-cont__tab");
+        const testiArray = document.querySelectorAll(".testi-cont__arr");
+        let horScrollSec = 0;
+        // -------------------- Утилитарные функции --------------------
+        // Проверяем, длиннее ли текущий слайд экрана
+        function isLongSlide(slide) {
+          const sec = slide.querySelector("section");
+          // Проверяем высоту самой секции
+          const isSlideLong = sec.scrollHeight > window.innerHeight;
 
-        // functions
-        let goToOtherSlide = null;
-        let resetScrollSettings = null;
-        if (window.matchMedia("(min-width: 1025px)").matches) {
-          const siteSlider = document.querySelector(".site-slider");
-          if (siteSlider) {
-            let siteSlides = siteSlider.querySelectorAll(".site-screen");
-            function setLightBody(flag) {
-              flag
-                ? document.body.classList.add("body-light")
-                : document.body.classList.remove("body-light");
+          // Секция считается длинной, если либо она сама длинная, либо у нее есть длинный дочерний элемент
+          return isSlideLong;
+        }
+        const processLongSectionScroll = (slide, delta) => {
+          const sec = slide.querySelector("section");
+          const currentScroll = sec.scrollTop; // Текущая позиция прокрутки
+          const maxScroll = sec.scrollHeight - sec.clientHeight; // Максимальное значение скролла
+          // Скролл вниз
+          if (delta < 0) {
+            if (currentScroll < maxScroll) {
+              slide.scrollTop = Math.min(
+                currentScroll + Math.abs(delta),
+                maxScroll
+              );
+              return "inProgress"; // Продолжаем скролл внутри секции
+            } else {
+              return "endBottom"; // Достигли конца секции
             }
-            function checkOverflow() {
-              if (siteSlides.length > 1 && window.scrollY == 0) {
-                document.body.style.overflow = "hidden";
-              }
+          }
+
+          // Скролл вверх
+          if (delta > 0) {
+            if (currentScroll > 0) {
+              slide.scrollTop = Math.max(currentScroll - Math.abs(delta), 0);
+              return "inProgress"; // Продолжаем скролл внутри секции
             }
-            function checkSlide(slide) {
-              if (slide.classList.contains("site-screen-start")) {
-                siteSlider.classList.add("hide-control");
-              } else {
-                siteSlider.classList.remove("hide-control");
-              }
+            return "endTop"; // Достигли начала секции
+          }
+          return "none"; // Скролл не изменился
+        };
+        function changeOpacity(newPos, direction, siteSlides) {
+          // Если листаем вниз
+          if (direction === "down") {
+            // Скрываем предыдущий слайд
+            if (
+              newPos > 0 &&
+              siteSlides[newPos - 1]?.querySelector(".hide-side")
+            ) {
+              siteSlides[newPos - 1].querySelector(
+                ".hide-side"
+              ).style.opacity = 0;
+            }
+            // Показываем текущий слайд
+            if (siteSlides[newPos]?.querySelector(".hide-side")) {
+              siteSlides[newPos].querySelector(".hide-side").style.opacity = 1;
+            }
+          }
+
+          // Если листаем вверх
+          if (direction === "up") {
+            // Скрываем следующий слайд
+            if (
+              newPos < siteSlides.length - 1 &&
+              siteSlides[newPos + 1]?.querySelector(".hide-side")
+            ) {
+              siteSlides[newPos + 1].querySelector(
+                ".hide-side"
+              ).style.opacity = 0;
+            }
+            // Показываем текущий слайд
+            if (siteSlides[newPos]?.querySelector(".hide-side")) {
+              siteSlides[newPos].querySelector(".hide-side").style.opacity = 1;
+            }
+          }
+        }
+
+        // Обновление состояния навигации
+        function updateNavigation(navItems, newPos) {
+          navItems.forEach((item, index) => {
+            item.classList.toggle("active", index === newPos); // Устанавливаем активный элемент навигации
+          });
+        }
+        if (window.matchMedia("(max-width: 768px)").matches) {
+          // Initialize Lenis
+          const lenis = new lenis__WEBPACK_IMPORTED_MODULE_1__["default"]();
+
+          // Use requestAnimationFrame to continuously update the scroll
+          function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+          }
+          requestAnimationFrame(raf);
+        }
+
+        // Отключение/включение стандартной прокрутки страницы
+        const setBodyScroll = (enabled) => {
+          document.body.style.overflow = enabled ? "auto" : "hidden";
+        };
+        // -------------------- Управляем классом body-light --------------------
+        function setLightBody(flag) {
+          flag
+            ? document.body.classList.add("body-light")
+            : document.body.classList.remove("body-light");
+        }
+        // Инициализация слайдов
+        const initSlides = (siteSlides) => {
+          siteSlides.forEach((slide, i) => {
+            slide.style.zIndex = i;
+            if (i !== 0) {
+              slide.style.transform = "translateY(100%)";
+            }
+
+            // Устанавливаем класс `body-light` для начального слайда (если это первый слайд при загрузке)
+            if (i === 0) {
               if (slide.classList.contains("site-screen-light")) {
                 setLightBody(1);
               } else {
                 setLightBody(0);
               }
-              if (slide.classList.contains("site-screen-hide-nav")) {
-                siteSlider.classList.add("hide-nav");
-              } else {
-                siteSlider.classList.remove("hide-nav");
-              }
             }
-            checkOverflow();
-            checkSlide(siteSlides[0]);
-            const nav = document.querySelector(".header__nav:not(.no-active)");
-            let navItems;
-            if (nav) {
-              navItems = nav.querySelectorAll("li");
-              navItems[0].classList.add("active");
-            }
-            function initSlides() {
-              siteSlides.forEach((slide, i) => {
-                slide.style.zIndex = i;
-                if (i != 0) {
-                  slide.style.transform = "translateY(100%)";
-                }
+          });
+        };
+
+        // Смещение к слайду
+        const setPosition = (newPos, siteSlides, navItems) => {
+          if (newPos < 0 || newPos >= siteSlides.length) return;
+          if (
+            newPos > windPos &&
+            isLongSlide(siteSlides[windPos]) &&
+            siteSlides[windPos].scrollTop <
+              siteSlides[windPos].scrollHeight -
+                siteSlides[windPos].clientHeight
+          ) {
+            return;
+          }
+          if (
+            newPos < windPos &&
+            isLongSlide(siteSlides[windPos]) &&
+            siteSlides[windPos].scrollTop > 0
+          ) {
+            return;
+          }
+          if (testiArray.length > 0) {
+            if (newPos != 1) {
+              testiTabs[0].classList.remove("active");
+              testiTabs[1].classList.add("active");
+              testiArray.forEach((el) => {
+                el.style.transform = "translate(-50%, 40vh)";
+              });
+            } else {
+              testiTabs[1].classList.remove("active");
+              testiTabs[0].classList.add("active");
+              testiArray.forEach((el) => {
+                el.style.transform = "translate(-50%, 0)";
               });
             }
-            initSlides();
-            function mainFunc(e) {
-              delta = e.wheelDeltaY;
-              if (delta > 0) {
-                direction = "up";
-                if (window.scrollY != 0) {
-                  window.scrollTo(0, 0);
-                }
-              } else {
-                direction = "down";
-              }
-              handleScroll();
-            }
-            let func = (0,
-            _functions_throttle_js__WEBPACK_IMPORTED_MODULE_0__.throttle)(
-              mainFunc
-            );
-            window.addEventListener("wheel", func);
+          }
+          const dir = newPos > windPos ? "down" : "up";
 
-            // Логика для навигации сбоку
+          // Переключение слайдов
+          if (dir === "down") {
+            for (let i = windPos; i <= newPos; i++) {
+              siteSlides[i].style.transform = "translateY(0)";
+            }
+          } else if (dir === "up") {
+            for (let i = newPos; i < windPos; i++) {
+              siteSlides[i + 1].style.transform = "translateY(100%)";
+            }
+          }
+          windPos = newPos;
+          changeOpacity(newPos, dir, siteSlides);
+          if (siteSlides[windPos].classList.contains("site-screen-light")) {
+            setLightBody(1);
+          } else {
+            setLightBody(0);
+          }
+          // Обновляем навигацию
+          setNavItem(windPos, siteSlides, navItems);
 
-            function clearNav() {
-              navItems.forEach((el) => el.classList.remove("active"));
-            }
-            if (nav) {
-              const indices = [];
-              function findIndicesOfOnes() {
-                siteSlides.forEach((value, index) => {
-                  if (!value.classList.contains("nav-disable")) {
-                    indices.push(index);
-                  }
-                });
-                console.log(indices);
-                return indices;
-              }
-              findIndicesOfOnes();
-              navItems.forEach((item, index) => {
-                item.addEventListener("click", (e) => {
-                  e.preventDefault();
-                  if (!checkNavDisabled()) {
-                    goToOtherSlide(indices[index]);
-                    setNavItem(index);
-                    if (index != navItems.length - 1) {
-                      window.scrollTo(0, 0);
-                      disableScrollSlides();
-                    }
-                  }
-                });
-              });
-            }
-            resetScrollSettings = () => {
-              windPos = 0;
-              navPos = 0;
-              siteSlides = siteSlider.querySelectorAll(".site-screen");
-              initSlides();
-            };
-            goToOtherSlide = (slideIndex) => {
-              setPosition(slideIndex);
-              goToSlide();
-            };
-            const renewPosSlidesDown = (start, end) => {
-              for (let i = start; i < end; i++) {
-                siteSlides[i].style.transform = "translateY(0)";
-              }
-            };
-            const renewPosSlidesUp = (start, end) => {
-              for (let i = start; i < end; i++) {
-                siteSlides[i].style.transform = "translateY(100%)";
-              }
-            };
-            function setPosition(newPos) {
-              if (newPos > windPos) {
-                direction = "down";
-                renewPosSlidesDown(windPos, newPos);
-                windPos = newPos - 1;
-              } else if (newPos < windPos) {
-                direction = "up";
-                renewPosSlidesUp(newPos + 1, windPos + 1);
-                windPos = newPos + 1;
-              } else return;
-            }
+          // Отдельно обрабатываем случай последнего слайда
+          // Разрешаем стандартный скролл ТОЛЬКО после завершения анимации
+          if (windPos === siteSlides.length - 1) {
+            setTimeout(() => {
+              isPageScrollEnabled = true;
+              setBodyScroll(true);
+            }, delayAnim); // Включаем стандартный скролл после завершения анимации
+          } else {
+            isPageScrollEnabled = false;
+            setBodyScroll(false); // Отключаем стандартный скролл для всех других слайдов
+          }
+        };
 
-            // Подсветка активного пункта навигации
-            function setNavItem(pos) {
-              clearNav();
-              navPos = pos;
-              navItems[navPos].classList.add("active");
-            }
-            function checkNavDisabled() {
-              return nav && nav.classList.contains("disabled");
-            }
-            function isEnd() {
-              return direction == "down" && windPos == siteSlides.length - 1;
-            }
-            function disableScrollSlides() {
-              if (isEnd()) {
-                setTimeout(() => {
-                  pause = true;
-                  document.body.style.overflow = null;
-                }, delayAnim);
-              } else {
-                document.body.style.overflow = "hidden";
-              }
-            }
-            function handleScroll() {
-              handleVars();
-              console.log("pause: " + pause);
-              if (!anim && !pause) {
-                goToSlide();
-              }
-            }
-            function handleVars() {
-              // Проверяем высоту слайда, если выше - включаем в него скролл
-              const currentSection =
-                siteSlides[windPos].querySelector("section");
-              if (currentSection.querySelector(".hor-scroll")) {
-                const horScroll = currentSection.querySelector(".hor-scroll");
-                const horScrollContainer = currentSection.querySelector(
-                  ".hor-scroll-container"
-                );
-                let finish =
-                  horScroll.scrollWidth - horScrollContainer.clientWidth;
-                const STEP = 20;
-                if (horScroll.scrollWidth > horScrollContainer.clientWidth) {
-                  horScroll.addEventListener("transitionend", (e) => {
-                    if (scroll == 0 || scroll == -finish) {
-                      pause = false;
-                      currentSection.removeEventListener("wheel", horWheel);
-                    }
-                  });
+        // -------------------- Навигация --------------------
 
-                  function horWheel(e) {
-                    pause = true;
-                    if (e.wheelDeltaY < 0) {
-                      scroll -= STEP;
-                      scroll = Math.max(scroll, -finish);
-                      horScroll.style.transform = `translateX(${scroll}px)`;
-                    } else if (e.wheelDeltaY > 0) {
-                      scroll += STEP;
-                      scroll = Math.min(scroll, 0);
-                      horScroll.style.transform = `translateX(${scroll}px)`;
-                      // horScroll.addEventListener("transitionend", (e) => {
-                      //   if (scroll == 0) {
-                      //     pause = false;
-                      //     currentSection.removeEventListener("wheel", horWheel);
-                      //   }
-                      // });
-                    }
-                  }
-                  currentSection.addEventListener("wheel", horWheel);
-                }
-              }
-              if (currentSection.scrollHeight > window.innerHeight) {
-                // Обработка слайдов, у которых высота больше, чем высота экрана
-                // <-- 18.11 MAYBE DELETE THIS
-                // currentSection.addEventListener("scroll", (e) => {
-                //   e.preventDefault();
+        // Функция очистки активного класса у всех элементов навигации
+        const clearNav = (navItems) => {
+          navItems.forEach((el) => el.classList.remove("active"));
+        };
 
-                //   if (window.scrollY != 0) {
-                //     window.scrollTo(0, 0);
-                //   }
-                // });
-                // -->
-                pause = true;
-                if (
-                  direction == "down" &&
-                  currentSection.scrollHeight - currentSection.scrollTop ===
-                    currentSection.clientHeight
-                ) {
-                  pause = false;
-                } else if (direction == "up" && currentSection.scrollTop <= 1) {
-                  pause = false;
-                }
-                currentSection.addEventListener("wheel", (e) => {
-                  if (
-                    e.wheelDeltaY < 0 &&
-                    currentSection.scrollHeight - currentSection.scrollTop ===
-                      currentSection.clientHeight
-                  ) {
-                    setTimeout(() => {
-                      pause = false;
-                    }, 300);
-                  } else if (
-                    e.wheelDeltaY > 0 &&
-                    currentSection.scrollTop == 0
-                  ) {
-                    setTimeout(() => {
-                      pause = false;
-                    }, 300);
-                  }
-                });
-              }
-            }
+        // Установка активного пункта навигации
+        const setNavItem = (windPos, siteSlides, navItems) => {
+          clearNav(navItems);
 
-            // Переход к следующим слайдам относительно winPos
-            function goToSlide() {
-              anim = true;
-              let target;
-              if (direction == "down" && windPos + 1 != siteSlides.length) {
-                if (
-                  nav &&
-                  !siteSlides[windPos].classList.contains("nav-disable") &&
-                  navPos + 1 < navItems.length
-                )
-                  navPos++;
-                target = siteSlides[++windPos];
-                setTimeout(() => {
-                  target.style.transform = "translateY(0%)";
-                }, delatSizeUp);
-              } else if (direction == "up" && windPos - 1 > -1) {
-                if (
-                  nav &&
-                  !siteSlides[windPos].classList.contains("nav-disable") &&
-                  navPos - 1 > -1
-                )
-                  navPos--;
-                target = siteSlides[windPos--];
-                setTimeout(() => {
-                  target.style.transform = "translateY(100%)";
-                }, delatSizeUp);
-              }
-              if (target) {
-                target.classList.add("active");
-                checkSlide(siteSlides[windPos]);
-              }
-              if (nav) {
-                setNavItem(navPos);
-              }
-              if (target == siteSlides[siteSlides.length - 1]) {
-                disableScrollSlides();
-              }
-              setTimeout(() => {
-                anim = false;
-                target?.classList.remove("active");
-                direction == "down" && !pause;
-              }, delayAnim);
+          // Собираем список видимых слайдов (без nav-disable)
+          const visibleSlides = siteSlides.filter(
+            (slide) => !slide.classList.contains("nav-disable")
+          );
 
-              // Если слайд последний и скролл вниз включаем обычный скролл
-            }
-            window.addEventListener("scroll", (e) => {
-              if (pause && window.scrollY == 0 && direction == "up") {
-                checkOverflow();
-                setTimeout(() => {
-                  pause = false;
-                }, 300);
+          // Определяем индекс активного слайда среди "видимых" слайдов
+          const activeIndex = visibleSlides.indexOf(siteSlides[windPos]);
+
+          // Если индекс существующий, подсвечиваем соответствующий элемент навигации
+          if (activeIndex !== -1 && navItems[activeIndex]) {
+            navItems[activeIndex].classList.add("active");
+          }
+        };
+
+        // Инициализация кликов по элементам навигации
+        const initNavigationClicks = (navItems, siteSlides) => {
+          // Собираем список только видимых слайдов
+          const visibleSlides = siteSlides.filter(
+            (slide) => !slide.classList.contains("nav-disable")
+          );
+          navItems.forEach((item, visibleIndex) => {
+            item.addEventListener("click", (e) => {
+              e.preventDefault();
+
+              // Находим реальный индекс слайда в общем массиве слайдов
+              const targetSlide = visibleSlides[visibleIndex];
+              const realIndex = siteSlides.indexOf(targetSlide);
+
+              // Если реальный индекс найден, переключаемся на слайд
+              if (realIndex !== -1) {
+                setPosition(realIndex, siteSlides, navItems);
               }
             });
+          });
+        };
+
+        // -------------------- Горизонтальная прокрутка (.hor-scroll) --------------------
+
+        // Карта для хранения состояния translateX каждого элемента .hor-scroll
+        const horizontalState = new WeakMap();
+        const initHorizontalState = (element) => {
+          if (!horizontalState.has(element)) {
+            horizontalState.set(element, {
+              currentTranslateX: 0,
+            });
           }
-        }
+        };
+        const handleHorizontalScroll = (horScroll, delta) => {
+          const state = horizontalState.get(horScroll);
+          const horContainerWidth = horScroll.parentElement.clientWidth;
+          const maxTranslateX = horScroll.scrollWidth - horContainerWidth; // Крайняя точка вправо
+
+          let newTranslateX = state.currentTranslateX;
+          // Прокрутка вниз (вправо)
+          if (delta < 0) {
+            horScrollSec += HOR_SCROLL_STEP;
+            horScrollSec = Math.min(maxTranslateX, horScrollSec);
+          }
+          // Прокрутка вверх (влево)
+          else if (delta > 0) {
+            horScrollSec -= HOR_SCROLL_STEP;
+            horScrollSec = Math.max(0, horScrollSec);
+          }
+          horScroll.style.transform = `translateX(-${horScrollSec}px)`;
+          state.currentTranslateX = newTranslateX;
+
+          // Возвращаем статус прокрутки
+          if (horScrollSec === maxTranslateX) return "endRight";
+          if (horScrollSec === 0) return "endLeft";
+          return "inProgress";
+        };
+
+        // -------------------- Обработка прокрутки --------------------
+
+        const handleScroll = (siteSlides, navItems) => {
+          if (anim || pause || isPageScrollEnabled) return;
+          const currentSlide = siteSlides[windPos];
+          const horScroll = currentSlide.querySelector(".hor-scroll");
+          if (horScroll) {
+            initHorizontalState(horScroll);
+            const scrollStatus = handleHorizontalScroll(horScroll, delta);
+            if (scrollStatus === "endRight" && delta < 0) {
+              setPosition(windPos + 1, siteSlides, navItems);
+            } else if (scrollStatus === "endLeft" && delta > 0) {
+              setPosition(windPos - 1, siteSlides, navItems);
+            }
+            return; // Прекращаем выполнение, так как был обработан hor-scroll
+          }
+          if (isLongSlide(currentSlide)) {
+            const sectionStatus = processLongSectionScroll(currentSlide, delta);
+
+            // Если дошли до самого низа длинной секции
+            if (sectionStatus === "endBottom" && delta < 0) {
+              setPosition(windPos + 1, siteSlides, navItems);
+            }
+
+            // Если поднялись до самого верха длинной секции
+            if (sectionStatus === "endTop" && delta > 0) {
+              setPosition(windPos - 1, siteSlides, navItems);
+            }
+            return; // Скролл длинной секции обработан
+          }
+          // Если нет hor-scroll, продолжаем работу
+          anim = true;
+          if (direction === "down" && windPos + 1 < siteSlides.length) {
+            setPosition(windPos + 1, siteSlides, navItems);
+          } else if (direction === "up" && windPos - 1 >= 0) {
+            setPosition(windPos - 1, siteSlides, navItems);
+          }
+          setTimeout(() => {
+            anim = false;
+          }, delayAnim);
+        };
+
+        // Основное событие прокрутки
+        const mainFunc = (e, siteSlides, navItems) => {
+          delta = e.wheelDeltaY || -e.deltaY;
+          direction = delta > 0 ? "up" : "down";
+          handleScroll(siteSlides, navItems);
+        };
+
+        // -------------------- Инициализация --------------------
+        document.addEventListener("DOMContentLoaded", () => {
+          if (!window.matchMedia("(min-width: 1025px)").matches) return;
+          const siteSlider = document.querySelector(".site-slider");
+          const footer = document.querySelector("footer");
+          if (!siteSlider) {
+            console.warn("Site slider not found");
+            return;
+          }
+          const siteSlides = Array.from(
+            siteSlider.querySelectorAll(".site-screen")
+          );
+          const nav = document.querySelector(".header__nav:not(.no-active)");
+          const navItems = nav
+            ? Array.from(nav.querySelectorAll("li:not(.no-clickable)"))
+            : [];
+          if (document.querySelector(".site-screen-start")) {
+            setTimeout(() => {
+              setPosition(windPos + 1, siteSlides, navItems);
+            }, 2200);
+          }
+          if (siteSlides.length > 1) {
+            setBodyScroll(false);
+            initSlides(siteSlides);
+            initNavigationClicks(navItems, siteSlides); // Инициализация кликов по навигации
+
+            const footerObserver = new IntersectionObserver(
+              (entries) => {
+                footerVisible = entries.some((entry) => entry.isIntersecting);
+                if (footerVisible) {
+                  isPageScrollEnabled = true;
+                  setBodyScroll(true); // Включаем стандартный скролл, если виден футер
+                } else if (windPos < siteSlides.length - 1) {
+                  isPageScrollEnabled = false;
+                  setBodyScroll(false); // Отключаем стандартный скролл
+                }
+              },
+              {
+                threshold: 0.1,
+              }
+            );
+            if (footer) footerObserver.observe(footer);
+            const throttledMainFunc = (0,
+            _functions_throttle_js__WEBPACK_IMPORTED_MODULE_0__.throttle)(
+              (e) => mainFunc(e, siteSlides, navItems),
+              300
+            );
+            window.addEventListener("wheel", throttledMainFunc);
+            window.addEventListener("scroll", () => {
+              if (
+                isPageScrollEnabled &&
+                window.scrollY === 0 &&
+                !footerVisible
+              ) {
+                isPageScrollEnabled = false;
+                setBodyScroll(false);
+                pause = false;
+              }
+            });
+          } else {
+            console.log(
+              "Insufficient slides detected: enabling standard page scroll."
+            );
+            setBodyScroll(true);
+          }
+        });
 
         /***/
       },
@@ -14429,6 +15230,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony import */ var swiper__WEBPACK_IMPORTED_MODULE_0__ =
           __webpack_require__(/*! swiper */ "./node_modules/swiper/swiper.mjs");
@@ -14470,23 +15272,45 @@
           swiper_modules__WEBPACK_IMPORTED_MODULE_1__.Grid,
           swiper_modules__WEBPACK_IMPORTED_MODULE_1__.Mousewheel,
         ]);
-        new swiper__WEBPACK_IMPORTED_MODULE_0__.Swiper(".research__slider", {
-          slidesPerView: "auto",
-          centeredSlides: true,
-          loop: true,
-          spaceBetween: 20,
-          speed: 500,
-          autoplay: {
-            disableOnInteraction: false,
-          },
-          speed: 500,
-          320: {
-            freeMode: true,
-          },
-          1025: {
-            freeMode: false,
-          },
-        });
+        const swiperContainer = document.querySelector(
+          ".research__slider .swiper-wrapper"
+        );
+        let slides = null;
+        if (swiperContainer) {
+          slides = Array.from(swiperContainer.children);
+        }
+
+        // Проверяем, если слайдов меньше 4
+        if (slides && slides.length < 4) {
+          // Дублируем слайды
+          const clonesNeeded = 4 - slides.length;
+          for (let i = 0; i < clonesNeeded; i++) {
+            // Получаем копию и добавляем в контейнер
+            const clone = slides[i % slides.length].cloneNode(true);
+            swiperContainer.appendChild(clone);
+          }
+        }
+        const researchSlider = new swiper__WEBPACK_IMPORTED_MODULE_0__.Swiper(
+          ".research__slider",
+          {
+            slidesPerView: "auto",
+            centeredSlides: true,
+            loop: true,
+            loopFillGroupWithBlank: true,
+            spaceBetween: 20,
+            speed: 500,
+            autoplay: {
+              disableOnInteraction: false,
+            },
+            speed: 500,
+            320: {
+              freeMode: true,
+            },
+            1025: {
+              freeMode: false,
+            },
+          }
+        );
         new swiper__WEBPACK_IMPORTED_MODULE_0__.Swiper(".proj-total__slider", {
           slidesPerView: "auto",
           centeredSlides: true,
@@ -14746,6 +15570,12 @@
             spaceBetween: 20,
             speed: 500,
           });
+          resizableSwiper("(max-width: 1024px)", ".testi-mob__slider", {
+            slidesPerView: "auto",
+            spaceBetween: 30,
+            loop: true,
+            speed: 500,
+          });
           resizableSwiper("(max-width: 1024px)", ".sp-slider-swiper", {
             slidesPerView: "auto",
             speed: 500,
@@ -14768,6 +15598,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         const surveyItems = document.querySelectorAll(".sl-list__item");
         if (surveyItems.length > 0) {
@@ -14807,6 +15638,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ throttle: () => /* binding */ throttle,
@@ -14848,6 +15680,1092 @@
         /***/
       },
 
+    /***/ "./node_modules/lenis/dist/lenis.mjs":
+      /*!*******************************************!*\
+    !*** ./node_modules/lenis/dist/lenis.mjs ***!
+    \*******************************************/
+      /***/ (
+        __unused_webpack___webpack_module__,
+        __webpack_exports__,
+        __webpack_require__
+      ) => {
+        "use strict";
+        __webpack_require__.r(__webpack_exports__);
+        /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+          /* harmony export */ default: () => /* binding */ Lenis,
+          /* harmony export */
+        });
+        // package.json
+        var version = "1.1.20";
+
+        // packages/core/src/maths.ts
+        function clamp(min, input, max) {
+          return Math.max(min, Math.min(input, max));
+        }
+        function lerp(x, y, t) {
+          return (1 - t) * x + t * y;
+        }
+        function damp(x, y, lambda, deltaTime) {
+          return lerp(x, y, 1 - Math.exp(-lambda * deltaTime));
+        }
+        function modulo(n, d) {
+          return ((n % d) + d) % d;
+        }
+
+        // packages/core/src/animate.ts
+        var Animate = class {
+          isRunning = false;
+          value = 0;
+          from = 0;
+          to = 0;
+          currentTime = 0;
+          // These are instanciated in the fromTo method
+          lerp;
+          duration;
+          easing;
+          onUpdate;
+          /**
+           * Advance the animation by the given delta time
+           *
+           * @param deltaTime - The time in seconds to advance the animation
+           */
+          advance(deltaTime) {
+            if (!this.isRunning) return;
+            let completed = false;
+            if (this.duration && this.easing) {
+              this.currentTime += deltaTime;
+              const linearProgress = clamp(
+                0,
+                this.currentTime / this.duration,
+                1
+              );
+              completed = linearProgress >= 1;
+              const easedProgress = completed ? 1 : this.easing(linearProgress);
+              this.value = this.from + (this.to - this.from) * easedProgress;
+            } else if (this.lerp) {
+              this.value = damp(this.value, this.to, this.lerp * 60, deltaTime);
+              if (Math.round(this.value) === this.to) {
+                this.value = this.to;
+                completed = true;
+              }
+            } else {
+              this.value = this.to;
+              completed = true;
+            }
+            if (completed) {
+              this.stop();
+            }
+            this.onUpdate?.(this.value, completed);
+          }
+          /** Stop the animation */
+          stop() {
+            this.isRunning = false;
+          }
+          /**
+           * Set up the animation from a starting value to an ending value
+           * with optional parameters for lerping, duration, easing, and onUpdate callback
+           *
+           * @param from - The starting value
+           * @param to - The ending value
+           * @param options - Options for the animation
+           */
+          fromTo(
+            from,
+            to,
+            { lerp: lerp2, duration, easing, onStart, onUpdate }
+          ) {
+            this.from = this.value = from;
+            this.to = to;
+            this.lerp = lerp2;
+            this.duration = duration;
+            this.easing = easing;
+            this.currentTime = 0;
+            this.isRunning = true;
+            onStart?.();
+            this.onUpdate = onUpdate;
+          }
+        };
+
+        // packages/core/src/debounce.ts
+        function debounce(callback, delay) {
+          let timer;
+          return function (...args) {
+            let context = this;
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+              timer = void 0;
+              callback.apply(context, args);
+            }, delay);
+          };
+        }
+
+        // packages/core/src/dimensions.ts
+        var Dimensions = class {
+          constructor(
+            wrapper,
+            content,
+            { autoResize = true, debounce: debounceValue = 250 } = {}
+          ) {
+            this.wrapper = wrapper;
+            this.content = content;
+            if (autoResize) {
+              this.debouncedResize = debounce(this.resize, debounceValue);
+              if (this.wrapper instanceof Window) {
+                window.addEventListener("resize", this.debouncedResize, false);
+              } else {
+                this.wrapperResizeObserver = new ResizeObserver(
+                  this.debouncedResize
+                );
+                this.wrapperResizeObserver.observe(this.wrapper);
+              }
+              this.contentResizeObserver = new ResizeObserver(
+                this.debouncedResize
+              );
+              this.contentResizeObserver.observe(this.content);
+            }
+            this.resize();
+          }
+          width = 0;
+          height = 0;
+          scrollHeight = 0;
+          scrollWidth = 0;
+          // These are instanciated in the constructor as they need information from the options
+          debouncedResize;
+          wrapperResizeObserver;
+          contentResizeObserver;
+          destroy() {
+            this.wrapperResizeObserver?.disconnect();
+            this.contentResizeObserver?.disconnect();
+            if (this.wrapper === window && this.debouncedResize) {
+              window.removeEventListener("resize", this.debouncedResize, false);
+            }
+          }
+          resize = () => {
+            this.onWrapperResize();
+            this.onContentResize();
+          };
+          onWrapperResize = () => {
+            if (this.wrapper instanceof Window) {
+              this.width = window.innerWidth;
+              this.height = window.innerHeight;
+            } else {
+              this.width = this.wrapper.clientWidth;
+              this.height = this.wrapper.clientHeight;
+            }
+          };
+          onContentResize = () => {
+            if (this.wrapper instanceof Window) {
+              this.scrollHeight = this.content.scrollHeight;
+              this.scrollWidth = this.content.scrollWidth;
+            } else {
+              this.scrollHeight = this.wrapper.scrollHeight;
+              this.scrollWidth = this.wrapper.scrollWidth;
+            }
+          };
+          get limit() {
+            return {
+              x: this.scrollWidth - this.width,
+              y: this.scrollHeight - this.height,
+            };
+          }
+        };
+
+        // packages/core/src/emitter.ts
+        var Emitter = class {
+          events = {};
+          /**
+           * Emit an event with the given data
+           * @param event Event name
+           * @param args Data to pass to the event handlers
+           */
+          emit(event, ...args) {
+            let callbacks = this.events[event] || [];
+            for (let i = 0, length = callbacks.length; i < length; i++) {
+              callbacks[i]?.(...args);
+            }
+          }
+          /**
+           * Add a callback to the event
+           * @param event Event name
+           * @param cb Callback function
+           * @returns Unsubscribe function
+           */
+          on(event, cb) {
+            this.events[event]?.push(cb) || (this.events[event] = [cb]);
+            return () => {
+              this.events[event] = this.events[event]?.filter((i) => cb !== i);
+            };
+          }
+          /**
+           * Remove a callback from the event
+           * @param event Event name
+           * @param callback Callback function
+           */
+          off(event, callback) {
+            this.events[event] = this.events[event]?.filter(
+              (i) => callback !== i
+            );
+          }
+          /**
+           * Remove all event listeners and clean up
+           */
+          destroy() {
+            this.events = {};
+          }
+        };
+
+        // packages/core/src/virtual-scroll.ts
+        var LINE_HEIGHT = 100 / 6;
+        var listenerOptions = { passive: false };
+        var VirtualScroll = class {
+          constructor(
+            element,
+            options = { wheelMultiplier: 1, touchMultiplier: 1 }
+          ) {
+            this.element = element;
+            this.options = options;
+            window.addEventListener("resize", this.onWindowResize, false);
+            this.onWindowResize();
+            this.element.addEventListener(
+              "wheel",
+              this.onWheel,
+              listenerOptions
+            );
+            this.element.addEventListener(
+              "touchstart",
+              this.onTouchStart,
+              listenerOptions
+            );
+            this.element.addEventListener(
+              "touchmove",
+              this.onTouchMove,
+              listenerOptions
+            );
+            this.element.addEventListener(
+              "touchend",
+              this.onTouchEnd,
+              listenerOptions
+            );
+          }
+          touchStart = {
+            x: 0,
+            y: 0,
+          };
+          lastDelta = {
+            x: 0,
+            y: 0,
+          };
+          window = {
+            width: 0,
+            height: 0,
+          };
+          emitter = new Emitter();
+          /**
+           * Add an event listener for the given event and callback
+           *
+           * @param event Event name
+           * @param callback Callback function
+           */
+          on(event, callback) {
+            return this.emitter.on(event, callback);
+          }
+          /** Remove all event listeners and clean up */
+          destroy() {
+            this.emitter.destroy();
+            window.removeEventListener("resize", this.onWindowResize, false);
+            this.element.removeEventListener(
+              "wheel",
+              this.onWheel,
+              listenerOptions
+            );
+            this.element.removeEventListener(
+              "touchstart",
+              this.onTouchStart,
+              listenerOptions
+            );
+            this.element.removeEventListener(
+              "touchmove",
+              this.onTouchMove,
+              listenerOptions
+            );
+            this.element.removeEventListener(
+              "touchend",
+              this.onTouchEnd,
+              listenerOptions
+            );
+          }
+          /**
+           * Event handler for 'touchstart' event
+           *
+           * @param event Touch event
+           */
+          onTouchStart = (event) => {
+            const { clientX, clientY } = event.targetTouches
+              ? event.targetTouches[0]
+              : event;
+            this.touchStart.x = clientX;
+            this.touchStart.y = clientY;
+            this.lastDelta = {
+              x: 0,
+              y: 0,
+            };
+            this.emitter.emit("scroll", {
+              deltaX: 0,
+              deltaY: 0,
+              event,
+            });
+          };
+          /** Event handler for 'touchmove' event */
+          onTouchMove = (event) => {
+            const { clientX, clientY } = event.targetTouches
+              ? event.targetTouches[0]
+              : event;
+            const deltaX =
+              -(clientX - this.touchStart.x) * this.options.touchMultiplier;
+            const deltaY =
+              -(clientY - this.touchStart.y) * this.options.touchMultiplier;
+            this.touchStart.x = clientX;
+            this.touchStart.y = clientY;
+            this.lastDelta = {
+              x: deltaX,
+              y: deltaY,
+            };
+            this.emitter.emit("scroll", {
+              deltaX,
+              deltaY,
+              event,
+            });
+          };
+          onTouchEnd = (event) => {
+            this.emitter.emit("scroll", {
+              deltaX: this.lastDelta.x,
+              deltaY: this.lastDelta.y,
+              event,
+            });
+          };
+          /** Event handler for 'wheel' event */
+          onWheel = (event) => {
+            let { deltaX, deltaY, deltaMode } = event;
+            const multiplierX =
+              deltaMode === 1
+                ? LINE_HEIGHT
+                : deltaMode === 2
+                ? this.window.width
+                : 1;
+            const multiplierY =
+              deltaMode === 1
+                ? LINE_HEIGHT
+                : deltaMode === 2
+                ? this.window.height
+                : 1;
+            deltaX *= multiplierX;
+            deltaY *= multiplierY;
+            deltaX *= this.options.wheelMultiplier;
+            deltaY *= this.options.wheelMultiplier;
+            this.emitter.emit("scroll", { deltaX, deltaY, event });
+          };
+          onWindowResize = () => {
+            this.window = {
+              width: window.innerWidth,
+              height: window.innerHeight,
+            };
+          };
+        };
+
+        // packages/core/src/lenis.ts
+        var Lenis = class {
+          _isScrolling = false;
+          // true when scroll is animating
+          _isStopped = false;
+          // true if user should not be able to scroll - enable/disable programmatically
+          _isLocked = false;
+          // same as isStopped but enabled/disabled when scroll reaches target
+          _preventNextNativeScrollEvent = false;
+          _resetVelocityTimeout = null;
+          __rafID = null;
+          /**
+           * Whether or not the user is touching the screen
+           */
+          isTouching;
+          /**
+           * The time in ms since the lenis instance was created
+           */
+          time = 0;
+          /**
+           * User data that will be forwarded through the scroll event
+           *
+           * @example
+           * lenis.scrollTo(100, {
+           *   userData: {
+           *     foo: 'bar'
+           *   }
+           * })
+           */
+          userData = {};
+          /**
+           * The last velocity of the scroll
+           */
+          lastVelocity = 0;
+          /**
+           * The current velocity of the scroll
+           */
+          velocity = 0;
+          /**
+           * The direction of the scroll
+           */
+          direction = 0;
+          /**
+           * The options passed to the lenis instance
+           */
+          options;
+          /**
+           * The target scroll value
+           */
+          targetScroll;
+          /**
+           * The animated scroll value
+           */
+          animatedScroll;
+          // These are instanciated here as they don't need information from the options
+          animate = new Animate();
+          emitter = new Emitter();
+          // These are instanciated in the constructor as they need information from the options
+          dimensions;
+          // This is not private because it's used in the Snap class
+          virtualScroll;
+          constructor({
+            wrapper = window,
+            content = document.documentElement,
+            eventsTarget = wrapper,
+            smoothWheel = true,
+            syncTouch = false,
+            syncTouchLerp = 0.075,
+            touchInertiaMultiplier = 35,
+            duration,
+            // in seconds
+            easing = (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            lerp: lerp2 = 0.1,
+            infinite = false,
+            orientation = "vertical",
+            // vertical, horizontal
+            gestureOrientation = "vertical",
+            // vertical, horizontal, both
+            touchMultiplier = 1,
+            wheelMultiplier = 1,
+            autoResize = true,
+            prevent,
+            virtualScroll,
+            overscroll = true,
+            autoRaf = false,
+            anchors = false,
+            __experimental__naiveDimensions = false,
+          } = {}) {
+            window.lenisVersion = version;
+            if (!wrapper || wrapper === document.documentElement) {
+              wrapper = window;
+            }
+            this.options = {
+              wrapper,
+              content,
+              eventsTarget,
+              smoothWheel,
+              syncTouch,
+              syncTouchLerp,
+              touchInertiaMultiplier,
+              duration,
+              easing,
+              lerp: lerp2,
+              infinite,
+              gestureOrientation,
+              orientation,
+              touchMultiplier,
+              wheelMultiplier,
+              autoResize,
+              prevent,
+              virtualScroll,
+              overscroll,
+              autoRaf,
+              anchors,
+              __experimental__naiveDimensions,
+            };
+            this.dimensions = new Dimensions(wrapper, content, { autoResize });
+            this.updateClassName();
+            this.targetScroll = this.animatedScroll = this.actualScroll;
+            this.options.wrapper.addEventListener(
+              "scroll",
+              this.onNativeScroll,
+              false
+            );
+            this.options.wrapper.addEventListener(
+              "scrollend",
+              this.onScrollEnd,
+              {
+                capture: true,
+              }
+            );
+            if (this.options.anchors && this.options.wrapper === window) {
+              this.options.wrapper.addEventListener(
+                "click",
+                this.onClick,
+                false
+              );
+            }
+            this.options.wrapper.addEventListener(
+              "pointerdown",
+              this.onPointerDown,
+              false
+            );
+            this.virtualScroll = new VirtualScroll(eventsTarget, {
+              touchMultiplier,
+              wheelMultiplier,
+            });
+            this.virtualScroll.on("scroll", this.onVirtualScroll);
+            if (this.options.autoRaf) {
+              this.__rafID = requestAnimationFrame(this.raf);
+            }
+          }
+          /**
+           * Destroy the lenis instance, remove all event listeners and clean up the class name
+           */
+          destroy() {
+            this.emitter.destroy();
+            this.options.wrapper.removeEventListener(
+              "scroll",
+              this.onNativeScroll,
+              false
+            );
+            this.options.wrapper.removeEventListener(
+              "scrollend",
+              this.onScrollEnd,
+              {
+                capture: true,
+              }
+            );
+            this.options.wrapper.removeEventListener(
+              "pointerdown",
+              this.onPointerDown,
+              false
+            );
+            if (this.options.anchors && this.options.wrapper === window) {
+              this.options.wrapper.removeEventListener(
+                "click",
+                this.onClick,
+                false
+              );
+            }
+            this.virtualScroll.destroy();
+            this.dimensions.destroy();
+            this.cleanUpClassName();
+            if (this.__rafID) {
+              cancelAnimationFrame(this.__rafID);
+            }
+          }
+          on(event, callback) {
+            return this.emitter.on(event, callback);
+          }
+          off(event, callback) {
+            return this.emitter.off(event, callback);
+          }
+          onScrollEnd = (e) => {
+            if (!(e instanceof CustomEvent)) {
+              if (this.isScrolling === "smooth" || this.isScrolling === false) {
+                e.stopPropagation();
+              }
+            }
+          };
+          dispatchScrollendEvent = () => {
+            this.options.wrapper.dispatchEvent(
+              new CustomEvent("scrollend", {
+                bubbles: this.options.wrapper === window,
+                // cancelable: false,
+                detail: {
+                  lenisScrollEnd: true,
+                },
+              })
+            );
+          };
+          setScroll(scroll) {
+            if (this.isHorizontal) {
+              this.options.wrapper.scrollTo({
+                left: scroll,
+                behavior: "instant",
+              });
+            } else {
+              this.options.wrapper.scrollTo({
+                top: scroll,
+                behavior: "instant",
+              });
+            }
+          }
+          onClick = (event) => {
+            const path = event.composedPath();
+            const anchor = path.find(
+              (node) =>
+                node instanceof HTMLAnchorElement &&
+                node.getAttribute("href")?.startsWith("#")
+            );
+            if (anchor) {
+              const id = anchor.getAttribute("href");
+              if (id) {
+                const options =
+                  typeof this.options.anchors === "object" &&
+                  this.options.anchors
+                    ? this.options.anchors
+                    : void 0;
+                this.scrollTo(id, options);
+              }
+            }
+          };
+          onPointerDown = (event) => {
+            if (event.button === 1) {
+              this.reset();
+            }
+          };
+          onVirtualScroll = (data) => {
+            if (
+              typeof this.options.virtualScroll === "function" &&
+              this.options.virtualScroll(data) === false
+            )
+              return;
+            const { deltaX, deltaY, event } = data;
+            this.emitter.emit("virtual-scroll", { deltaX, deltaY, event });
+            if (event.ctrlKey) return;
+            if (event.lenisStopPropagation) return;
+            const isTouch = event.type.includes("touch");
+            const isWheel = event.type.includes("wheel");
+            this.isTouching =
+              event.type === "touchstart" || event.type === "touchmove";
+            const isClickOrTap = deltaX === 0 && deltaY === 0;
+            const isTapToStop =
+              this.options.syncTouch &&
+              isTouch &&
+              event.type === "touchstart" &&
+              isClickOrTap &&
+              !this.isStopped &&
+              !this.isLocked;
+            if (isTapToStop) {
+              this.reset();
+              return;
+            }
+            const isUnknownGesture =
+              (this.options.gestureOrientation === "vertical" &&
+                deltaY === 0) ||
+              (this.options.gestureOrientation === "horizontal" &&
+                deltaX === 0);
+            if (isClickOrTap || isUnknownGesture) {
+              return;
+            }
+            let composedPath = event.composedPath();
+            composedPath = composedPath.slice(
+              0,
+              composedPath.indexOf(this.rootElement)
+            );
+            const prevent = this.options.prevent;
+            if (
+              !!composedPath.find(
+                (node) =>
+                  node instanceof HTMLElement &&
+                  ((typeof prevent === "function" && prevent?.(node)) ||
+                    node.hasAttribute?.("data-lenis-prevent") ||
+                    (isTouch &&
+                      node.hasAttribute?.("data-lenis-prevent-touch")) ||
+                    (isWheel &&
+                      node.hasAttribute?.("data-lenis-prevent-wheel")))
+              )
+            )
+              return;
+            if (this.isStopped || this.isLocked) {
+              event.preventDefault();
+              return;
+            }
+            const isSmooth =
+              (this.options.syncTouch && isTouch) ||
+              (this.options.smoothWheel && isWheel);
+            if (!isSmooth) {
+              this.isScrolling = "native";
+              this.animate.stop();
+              event.lenisStopPropagation = true;
+              return;
+            }
+            let delta = deltaY;
+            if (this.options.gestureOrientation === "both") {
+              delta = Math.abs(deltaY) > Math.abs(deltaX) ? deltaY : deltaX;
+            } else if (this.options.gestureOrientation === "horizontal") {
+              delta = deltaX;
+            }
+            if (
+              !this.options.overscroll ||
+              this.options.infinite ||
+              (this.options.wrapper !== window &&
+                ((this.animatedScroll > 0 &&
+                  this.animatedScroll < this.limit) ||
+                  (this.animatedScroll === 0 && deltaY > 0) ||
+                  (this.animatedScroll === this.limit && deltaY < 0)))
+            ) {
+              event.lenisStopPropagation = true;
+            }
+            event.preventDefault();
+            const isSyncTouch = isTouch && this.options.syncTouch;
+            const isTouchEnd = isTouch && event.type === "touchend";
+            const hasTouchInertia = isTouchEnd && Math.abs(delta) > 5;
+            if (hasTouchInertia) {
+              delta = this.velocity * this.options.touchInertiaMultiplier;
+            }
+            this.scrollTo(this.targetScroll + delta, {
+              programmatic: false,
+              ...(isSyncTouch
+                ? {
+                    lerp: hasTouchInertia ? this.options.syncTouchLerp : 1,
+                    // immediate: !hasTouchInertia,
+                  }
+                : {
+                    lerp: this.options.lerp,
+                    duration: this.options.duration,
+                    easing: this.options.easing,
+                  }),
+            });
+          };
+          /**
+           * Force lenis to recalculate the dimensions
+           */
+          resize() {
+            this.dimensions.resize();
+            this.animatedScroll = this.targetScroll = this.actualScroll;
+            this.emit();
+          }
+          emit() {
+            this.emitter.emit("scroll", this);
+          }
+          onNativeScroll = () => {
+            if (this._resetVelocityTimeout !== null) {
+              clearTimeout(this._resetVelocityTimeout);
+              this._resetVelocityTimeout = null;
+            }
+            if (this._preventNextNativeScrollEvent) {
+              this._preventNextNativeScrollEvent = false;
+              return;
+            }
+            if (this.isScrolling === false || this.isScrolling === "native") {
+              const lastScroll = this.animatedScroll;
+              this.animatedScroll = this.targetScroll = this.actualScroll;
+              this.lastVelocity = this.velocity;
+              this.velocity = this.animatedScroll - lastScroll;
+              this.direction = Math.sign(this.animatedScroll - lastScroll);
+              if (!this.isStopped) {
+                this.isScrolling = "native";
+              }
+              this.emit();
+              if (this.velocity !== 0) {
+                this._resetVelocityTimeout = setTimeout(() => {
+                  this.lastVelocity = this.velocity;
+                  this.velocity = 0;
+                  this.isScrolling = false;
+                  this.emit();
+                }, 400);
+              }
+            }
+          };
+          reset() {
+            this.isLocked = false;
+            this.isScrolling = false;
+            this.animatedScroll = this.targetScroll = this.actualScroll;
+            this.lastVelocity = this.velocity = 0;
+            this.animate.stop();
+          }
+          /**
+           * Start lenis scroll after it has been stopped
+           */
+          start() {
+            if (!this.isStopped) return;
+            this.reset();
+            this.isStopped = false;
+          }
+          /**
+           * Stop lenis scroll
+           */
+          stop() {
+            if (this.isStopped) return;
+            this.reset();
+            this.isStopped = true;
+          }
+          /**
+           * RequestAnimationFrame for lenis
+           *
+           * @param time The time in ms from an external clock like `requestAnimationFrame` or Tempus
+           */
+          raf = (time) => {
+            const deltaTime = time - (this.time || time);
+            this.time = time;
+            this.animate.advance(deltaTime * 1e-3);
+            if (this.options.autoRaf) {
+              this.__rafID = requestAnimationFrame(this.raf);
+            }
+          };
+          /**
+           * Scroll to a target value
+           *
+           * @param target The target value to scroll to
+           * @param options The options for the scroll
+           *
+           * @example
+           * lenis.scrollTo(100, {
+           *   offset: 100,
+           *   duration: 1,
+           *   easing: (t) => 1 - Math.cos((t * Math.PI) / 2),
+           *   lerp: 0.1,
+           *   onStart: () => {
+           *     console.log('onStart')
+           *   },
+           *   onComplete: () => {
+           *     console.log('onComplete')
+           *   },
+           * })
+           */
+          scrollTo(
+            target,
+            {
+              offset = 0,
+              immediate = false,
+              lock = false,
+              duration = this.options.duration,
+              easing = this.options.easing,
+              lerp: lerp2 = this.options.lerp,
+              onStart,
+              onComplete,
+              force = false,
+              // scroll even if stopped
+              programmatic = true,
+              // called from outside of the class
+              userData,
+            } = {}
+          ) {
+            if ((this.isStopped || this.isLocked) && !force) return;
+            if (
+              typeof target === "string" &&
+              ["top", "left", "start"].includes(target)
+            ) {
+              target = 0;
+            } else if (
+              typeof target === "string" &&
+              ["bottom", "right", "end"].includes(target)
+            ) {
+              target = this.limit;
+            } else {
+              let node;
+              if (typeof target === "string") {
+                node = document.querySelector(target);
+              } else if (target instanceof HTMLElement && target?.nodeType) {
+                node = target;
+              }
+              if (node) {
+                if (this.options.wrapper !== window) {
+                  const wrapperRect = this.rootElement.getBoundingClientRect();
+                  offset -= this.isHorizontal
+                    ? wrapperRect.left
+                    : wrapperRect.top;
+                }
+                const rect = node.getBoundingClientRect();
+                target =
+                  (this.isHorizontal ? rect.left : rect.top) +
+                  this.animatedScroll;
+              }
+            }
+            if (typeof target !== "number") return;
+            target += offset;
+            target = Math.round(target);
+            if (this.options.infinite) {
+              if (programmatic) {
+                this.targetScroll = this.animatedScroll = this.scroll;
+              }
+            } else {
+              target = clamp(0, target, this.limit);
+            }
+            if (target === this.targetScroll) {
+              onStart?.(this);
+              onComplete?.(this);
+              return;
+            }
+            this.userData = userData ?? {};
+            if (immediate) {
+              this.animatedScroll = this.targetScroll = target;
+              this.setScroll(this.scroll);
+              this.reset();
+              this.preventNextNativeScrollEvent();
+              this.emit();
+              onComplete?.(this);
+              this.userData = {};
+              requestAnimationFrame(() => {
+                this.dispatchScrollendEvent();
+              });
+              return;
+            }
+            if (!programmatic) {
+              this.targetScroll = target;
+            }
+            this.animate.fromTo(this.animatedScroll, target, {
+              duration,
+              easing,
+              lerp: lerp2,
+              onStart: () => {
+                if (lock) this.isLocked = true;
+                this.isScrolling = "smooth";
+                onStart?.(this);
+              },
+              onUpdate: (value, completed) => {
+                this.isScrolling = "smooth";
+                this.lastVelocity = this.velocity;
+                this.velocity = value - this.animatedScroll;
+                this.direction = Math.sign(this.velocity);
+                this.animatedScroll = value;
+                this.setScroll(this.scroll);
+                if (programmatic) {
+                  this.targetScroll = value;
+                }
+                if (!completed) this.emit();
+                if (completed) {
+                  this.reset();
+                  this.emit();
+                  onComplete?.(this);
+                  this.userData = {};
+                  requestAnimationFrame(() => {
+                    this.dispatchScrollendEvent();
+                  });
+                  this.preventNextNativeScrollEvent();
+                }
+              },
+            });
+          }
+          preventNextNativeScrollEvent() {
+            this._preventNextNativeScrollEvent = true;
+            requestAnimationFrame(() => {
+              this._preventNextNativeScrollEvent = false;
+            });
+          }
+          /**
+           * The root element on which lenis is instanced
+           */
+          get rootElement() {
+            return this.options.wrapper === window
+              ? document.documentElement
+              : this.options.wrapper;
+          }
+          /**
+           * The limit which is the maximum scroll value
+           */
+          get limit() {
+            if (this.options.__experimental__naiveDimensions) {
+              if (this.isHorizontal) {
+                return (
+                  this.rootElement.scrollWidth - this.rootElement.clientWidth
+                );
+              } else {
+                return (
+                  this.rootElement.scrollHeight - this.rootElement.clientHeight
+                );
+              }
+            } else {
+              return this.dimensions.limit[this.isHorizontal ? "x" : "y"];
+            }
+          }
+          /**
+           * Whether or not the scroll is horizontal
+           */
+          get isHorizontal() {
+            return this.options.orientation === "horizontal";
+          }
+          /**
+           * The actual scroll value
+           */
+          get actualScroll() {
+            const wrapper = this.options.wrapper;
+            return this.isHorizontal
+              ? wrapper.scrollX ?? wrapper.scrollLeft
+              : wrapper.scrollY ?? wrapper.scrollTop;
+          }
+          /**
+           * The current scroll value
+           */
+          get scroll() {
+            return this.options.infinite
+              ? modulo(this.animatedScroll, this.limit)
+              : this.animatedScroll;
+          }
+          /**
+           * The progress of the scroll relative to the limit
+           */
+          get progress() {
+            return this.limit === 0 ? 1 : this.scroll / this.limit;
+          }
+          /**
+           * Current scroll state
+           */
+          get isScrolling() {
+            return this._isScrolling;
+          }
+          set isScrolling(value) {
+            if (this._isScrolling !== value) {
+              this._isScrolling = value;
+              this.updateClassName();
+            }
+          }
+          /**
+           * Check if lenis is stopped
+           */
+          get isStopped() {
+            return this._isStopped;
+          }
+          set isStopped(value) {
+            if (this._isStopped !== value) {
+              this._isStopped = value;
+              this.updateClassName();
+            }
+          }
+          /**
+           * Check if lenis is locked
+           */
+          get isLocked() {
+            return this._isLocked;
+          }
+          set isLocked(value) {
+            if (this._isLocked !== value) {
+              this._isLocked = value;
+              this.updateClassName();
+            }
+          }
+          /**
+           * Check if lenis is smooth scrolling
+           */
+          get isSmooth() {
+            return this.isScrolling === "smooth";
+          }
+          /**
+           * The class name applied to the wrapper element
+           */
+          get className() {
+            let className = "lenis";
+            if (this.isStopped) className += " lenis-stopped";
+            if (this.isLocked) className += " lenis-locked";
+            if (this.isScrolling) className += " lenis-scrolling";
+            if (this.isScrolling === "smooth") className += " lenis-smooth";
+            return className;
+          }
+          updateClassName() {
+            this.cleanUpClassName();
+            this.rootElement.className =
+              `${this.rootElement.className} ${this.className}`.trim();
+          }
+          cleanUpClassName() {
+            this.rootElement.className = this.rootElement.className
+              .replace(/lenis(-\w+)?/g, "")
+              .trim();
+          }
+        };
+
+        //# sourceMappingURL=lenis.mjs.map
+
+        /***/
+      },
+
     /***/ "./node_modules/swiper/modules/a11y.mjs":
       /*!**********************************************!*\
     !*** ./node_modules/swiper/modules/a11y.mjs ***!
@@ -14857,6 +16775,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ A11y,
@@ -15374,6 +17293,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Autoplay,
@@ -15738,6 +17658,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Controller,
@@ -16000,6 +17921,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ EffectCards,
@@ -16190,6 +18112,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ EffectCoverflow,
@@ -16355,6 +18278,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ EffectCreative,
@@ -16571,6 +18495,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ EffectCube,
@@ -16826,6 +18751,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ EffectFade,
@@ -16925,6 +18851,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ EffectFlip,
@@ -17092,6 +19019,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ freeMode,
@@ -17376,6 +19304,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Grid,
@@ -17565,6 +19494,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ HashNavigation,
@@ -17726,6 +19656,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ History,
@@ -17916,6 +19847,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ A11y: () =>
@@ -18117,6 +20049,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Keyboard,
@@ -18307,6 +20240,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Manipulation,
@@ -18506,6 +20440,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Mousewheel,
@@ -19022,6 +20957,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Navigation,
@@ -19301,6 +21237,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Pagination,
@@ -19990,6 +21927,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Parallax,
@@ -20142,6 +22080,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Scrollbar,
@@ -20580,6 +22519,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Thumb,
@@ -20849,6 +22789,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Virtual,
@@ -21267,6 +23208,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ default: () => /* binding */ Zoom,
@@ -22125,6 +24067,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ c: () => /* binding */ classesToSelector,
@@ -22152,6 +24095,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ c: () => /* binding */ createElementIfNotDefined,
@@ -22203,6 +24147,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ c: () => /* binding */ createShadow,
@@ -22244,6 +24189,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ e: () => /* binding */ effectInit,
@@ -22332,6 +24278,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ e: () => /* binding */ effectTarget,
@@ -22365,6 +24312,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ e: () =>
@@ -22433,6 +24381,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ a: () => /* binding */ getWindow,
@@ -22605,6 +24554,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ S: () => /* binding */ Swiper,
@@ -27546,6 +29496,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ a: () => /* binding */ elementParents,
@@ -27984,6 +29935,7 @@
         __webpack_exports__,
         __webpack_require__
       ) => {
+        "use strict";
         __webpack_require__.r(__webpack_exports__);
         /* harmony export */ __webpack_require__.d(__webpack_exports__, {
           /* harmony export */ Swiper: () =>
@@ -28068,6 +30020,22 @@
     /******/
   })();
   /******/
+  /******/ /* webpack/runtime/global */
+  /******/ (() => {
+    /******/ __webpack_require__.g = (function () {
+      /******/ if (typeof globalThis === "object") return globalThis;
+      /******/ try {
+        /******/ return this || new Function("return this")();
+        /******/
+      } catch (e) {
+        /******/ if (typeof window === "object") return window;
+        /******/
+      }
+      /******/
+    })();
+    /******/
+  })();
+  /******/
   /******/ /* webpack/runtime/hasOwnProperty shorthand */
   /******/ (() => {
     /******/ __webpack_require__.o = (obj, prop) =>
@@ -28093,14 +30061,17 @@
   /******/
   /************************************************************************/
   var __webpack_exports__ = {};
-  // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+  // This entry need to be wrapped in an IIFE because it need to be in strict mode.
   (() => {
+    "use strict";
     /*!************************!*\
     !*** ./src/js/main.js ***!
     \************************/
     __webpack_require__.r(__webpack_exports__);
     /* harmony import */ var _components_js__WEBPACK_IMPORTED_MODULE_0__ =
       __webpack_require__(/*! ./_components.js */ "./src/js/_components.js");
+    /* harmony import */ var rellax__WEBPACK_IMPORTED_MODULE_1__ =
+      __webpack_require__(/*! rellax */ "./node_modules/rellax/rellax.js");
 
     const service = document.querySelectorAll(".service");
     if (service.length > 0) {
@@ -28148,6 +30119,67 @@
         });
       });
     }
+    const attachResume = document.querySelectorAll(".form__file");
+    if (attachResume.length > 0) {
+      attachResume.forEach((el) => {
+        const textCont = el.querySelector("span");
+        const input = el.querySelector("input[type=file]");
+        input.addEventListener("change", (e) => {
+          const fileName = [...input.files].map((item) => item.name).join(",");
+          textCont.textContent = fileName;
+        });
+      });
+    }
+    var rellax = new rellax__WEBPACK_IMPORTED_MODULE_1__(".rellax", {
+      speed: 2,
+      center: false,
+      wrapper: ".news-section",
+      round: true,
+      vertical: true,
+      horizontal: false,
+    });
+    var body = document.body,
+      html = document.documentElement;
+    var pageHeight = Math.max(
+      body.scrollHeight,
+      body.offsetHeight,
+      html.clientHeight,
+      html.scrollHeight,
+      html.offsetHeight
+    );
+    document.addEventListener("DOMContentLoaded", function () {
+      const header = document.querySelector(".header:not(.h-nav--nolist)");
+      const footer = document.querySelector(".footer");
+      const sidebar = document.querySelector(".sidebar");
+      if (
+        !document.querySelector(".geography_filter")?.closest(".site-screen")
+      ) {
+        window.addEventListener("scroll", function () {
+          const footerRect = footer.getBoundingClientRect();
+          const headerHeight = header?.offsetHeight || sidebar.offsetHeight;
+          if (footerRect.top < headerHeight) {
+            console.log("less");
+            if (header) {
+              header.style.position = "absolute";
+              header.style.top = `${window.innerHeight}px`;
+            }
+            if (sidebar) {
+              sidebar.style.position = "absolute";
+              sidebar.style.top = `${window.innerHeight}px`;
+            }
+          } else {
+            if (header) {
+              header.style.position = "fixed";
+              header.style.top = "0";
+            }
+            if (sidebar) {
+              sidebar.style.position = "fixed";
+              sidebar.style.top = "0";
+            }
+          }
+        });
+      }
+    });
   })();
 
   /******/

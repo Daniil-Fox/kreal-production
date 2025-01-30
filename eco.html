@@ -93,7 +93,7 @@
     />
     <link rel="stylesheet" href="css/vendor.css" />
     <link rel="stylesheet" href="css/general.css" />
-    <link rel="stylesheet" href="css/eco.css" />
+    <link rel="stylesheet" href="css/spec.css" />
     <script defer src="js/main.js"></script>
   </head>
 
@@ -119,7 +119,9 @@
             </div>
           </div>
           <div class="site-wrapper">
-            <div class="site-screen site-screen-start site-screen-light">
+            <div
+              class="site-screen site-screen-start site-screen-light nav-disable"
+            >
               <section class="eco">
                 <div class="container">
                   <div class="eco__container">
@@ -133,6 +135,9 @@
             <div class="site-screen">
               <section class="eco-items">
                 <div class="container">
+                  <h2 class="eco-items__title title2 animate-title title2--mob">
+                    <span>Экологлия</span>
+                  </h2>
                   <h2 class="eco-items__title title2">
                     Я балтийская нерпа, <span>и я вернулась в Неву</span>
                   </h2>
@@ -152,14 +157,6 @@
                         зарубежные и отечественные технологии в области
                         управления бытовыми и промышленными отходами. 
                       </p>
-                      <div class="eco-block__mob">
-                        <span class="eco-block__link link"
-                          >Подробнее
-                          <svg>
-                            <use xlink:href="img/sprite.svg#arr-right"></use>
-                          </svg>
-                        </span>
-                      </div>
                     </a>
                     <a href="#" class="eco-item eco__item">
                       <div class="eco-item__img">
@@ -172,14 +169,6 @@
                         усовершенствовала технологию глубокой биологической
                         очистки сточных вод.
                       </p>
-                      <div class="eco-block__mob">
-                        <span class="eco-block__link link"
-                          >Подробнее
-                          <svg>
-                            <use xlink:href="img/sprite.svg#arr-right"></use>
-                          </svg>
-                        </span>
-                      </div>
                     </a>
                     <a href="#" class="eco-item eco__item">
                       <div class="eco-item__img">
@@ -195,14 +184,6 @@
                         является актуальной задачей для многих существующих и
                         проектируемых очистных сооружений. 
                       </p>
-                      <div class="eco-block__mob">
-                        <span class="eco-block__link link"
-                          >Подробнее
-                          <svg>
-                            <use xlink:href="img/sprite.svg#arr-right"></use>
-                          </svg>
-                        </span>
-                      </div>
                     </a>
                     <a href="#" class="eco-item eco__item">
                       <div class="eco-item__img">
@@ -210,14 +191,6 @@
                       </div>
                       <p class="eco-item__title">Заголовок</p>
                       <p class="desc desc--thin eco-item__desc">Текст...</p>
-                      <div class="eco-block__mob">
-                        <span class="eco-block__link link"
-                          >Подробнее
-                          <svg>
-                            <use xlink:href="img/sprite.svg#arr-right"></use>
-                          </svg>
-                        </span>
-                      </div>
                     </a>
                     <a href="#" class="eco-item eco__item">
                       <div class="eco-item__img">
@@ -233,14 +206,6 @@
                         является актуальной задачей для многих существующих и
                         проектируемых очистных сооружений. 
                       </p>
-                      <div class="eco-block__mob">
-                        <span class="eco-block__link link"
-                          >Подробнее
-                          <svg>
-                            <use xlink:href="img/sprite.svg#arr-right"></use>
-                          </svg>
-                        </span>
-                      </div>
                     </a>
                     <a href="#" class="eco-item eco__item">
                       <div class="eco-item__img">
@@ -248,14 +213,6 @@
                       </div>
                       <p class="eco-item__title">Заголовок</p>
                       <p class="desc desc--thin eco-item__desc">Текст...</p>
-                      <div class="eco-block__mob">
-                        <span class="eco-block__link link"
-                          >Подробнее
-                          <svg>
-                            <use xlink:href="img/sprite.svg#arr-right"></use>
-                          </svg>
-                        </span>
-                      </div>
                     </a>
                   </div>
                 </div>
@@ -273,6 +230,40 @@
           </aside>
         </div>
       </main>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+      <section class="geography_filter">
+        <div class="container">
+          <div class="title_listener">
+            <h2>География <span>объектов</span></h2>
+          </div>
+          <div class="extra_map">
+            <video
+              id="map_video"
+              muted
+              class="grn-standart"
+              src="./KrealMap.mp4"
+            ></video>
+            <div class="background"></div>
+            <div class="pkuis"></div>
+          </div>
+        </div>
+      </section>
+      <script>
+        var a = false;
+        $(".geography_filter").on("mouseover", () => {
+          if (!a) {
+            $("#map_video")[0].play();
+            a = !a;
+          }
+        });
+        $("#map_video").on("ended", () => {
+          $("#map_video").addClass("ended_video");
+          setTimeout(() => {
+            $("#map_video").hide();
+          }, 400);
+        });
+      </script>
+
       <footer class="footer">
         <div class="footer__top">
           <div class="footer__container">

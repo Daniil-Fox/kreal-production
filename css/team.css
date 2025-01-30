@@ -184,7 +184,6 @@
   border-radius: 100%;
   background-color: #d9d9d9;
   overflow: hidden;
-  flex-shrink: 0;
 }
 @media (max-width: 1024px) {
   .team-p__img {
@@ -197,7 +196,6 @@
   height: 100%;
   -o-object-fit: cover;
   object-fit: cover;
-  object-position: 0 12%;
 }
 @media (max-width: 1024px) {
   .team-p__name,
