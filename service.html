@@ -106,7 +106,9 @@
             <div class="header__container">
               <a href="./" class="header__logo">
                 <svg class="">
-                  <use xlink:href="img/sprite.svg#logo"></use>
+                  <use
+                    xlink:href="img/sprite.svg#logo"
+                  ></use>
                 </svg>
               </a>
 
@@ -119,7 +121,8 @@
             </div>
           </div>
           <div class="site-wrapper">
-            <div class="site-screen"><section class="service">
+            <div class="site-screen">
+              <section class="service">
   <div class="container">
     <h2 class="service__title title2 centered">Услуги</h2>
     <div class="service__container">
@@ -293,7 +296,8 @@
     </div>
   </div>
 </section>
-</div>
+
+            </div>
             <div class="site-screen">
               <section class="service-garant service">
   <div class="container">
@@ -414,7 +418,7 @@
         </div>
       </main>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<section class="geography_filter">
+<div class="geography_filter">
   <div class="container">
     <div class="title_listener">
       <h2>География <span>объектов</span></h2>
@@ -424,13 +428,13 @@
         id="map_video"
         muted
         class="grn-standart"
-        src="./KrealMap.mp4"
+        src="media/video/KrealMap.mp4"
       ></video>
       <div class="background"></div>
       <div class="pkuis"></div>
     </div>
   </div>
-</section>
+</div>
 <script>
   var a = false;
   $('.geography_filter').on('mouseover', () => {

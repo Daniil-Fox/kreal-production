@@ -100,7 +100,7 @@
   <body class="page__body">
     <div class="site-container">
       <main class="main">
-        <div class="site-slider site-slider--eco">
+        <div class="site-slider site-slider--eco no-standart">
           <div class="h-nav header">
             <span></span>
             <div class="header__container">
@@ -174,8 +174,7 @@
                   </div>
                 </div>
               </section>
-            </div>
-            <div class="site-screen">
+
               <section class="eco-block">
                 <div class="container">
                   <div class="eco-block__container">
@@ -213,8 +212,7 @@
                   </div>
                 </div>
               </section>
-            </div>
-            <div class="site-screen">
+
               <section class="eco-block">
                 <div class="container">
                   <div class="eco-block__container">
@@ -272,7 +270,7 @@
         </div>
       </main>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-      <section class="geography_filter">
+      <div class="geography_filter">
         <div class="container">
           <div class="title_listener">
             <h2>География <span>объектов</span></h2>
@@ -282,13 +280,13 @@
               id="map_video"
               muted
               class="grn-standart"
-              src="./KrealMap.mp4"
+              src="media/video/KrealMap.mp4"
             ></video>
             <div class="background"></div>
             <div class="pkuis"></div>
           </div>
         </div>
-      </section>
+      </div>
       <script>
         var a = false;
         $(".geography_filter").on("mouseover", () => {
@@ -305,7 +303,7 @@
         });
       </script>
 
-      <footer class="footer footer--ultra-blue">
+      <footer class="footer">
         <div class="footer__top">
           <div class="footer__container">
             <div class="footer__left">

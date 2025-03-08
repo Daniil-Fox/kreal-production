@@ -92,8 +92,7 @@
       crossorigin
     />
     <link rel="stylesheet" href="css/vendor.css" />
-    <link rel="stylesheet" href="css/general.css" />
-    <link rel="stylesheet" href="css/article.css" />
+    <link rel="stylesheet" href="css/main.css" />
     <script defer src="js/main.js"></script>
   </head>
 
@@ -472,7 +471,7 @@
         </div>
       </main>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-      <section class="geography_filter">
+      <div class="geography_filter">
         <div class="container">
           <div class="title_listener">
             <h2>География <span>объектов</span></h2>
@@ -482,13 +481,13 @@
               id="map_video"
               muted
               class="grn-standart"
-              src="./KrealMap.mp4"
+              src="media/video/KrealMap.mp4"
             ></video>
             <div class="background"></div>
             <div class="pkuis"></div>
           </div>
         </div>
-      </section>
+      </div>
       <script>
         var a = false;
         $(".geography_filter").on("mouseover", () => {
